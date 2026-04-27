@@ -1,0 +1,44 @@
+{
+  "usuarios": {
+    "1": {
+      "nombre": "Emmanuel Sanchez",
+      "email": "esanchez@unab.edu.co",
+      "password": "esan1234"
+    }
+  },
+  "equipos": {
+    "1": { "activo": true },
+    "2": { "activo": true },
+    "3": { "activo": true },
+    "4": { "activo": true },
+    "5": { "activo": true },
+    "6": { "activo": true },
+    "7": { "activo": true },
+    "8": { "activo": true },
+    "9": { "activo": true },
+    "10": { "activo": true },
+    "11": { "activo": true },
+    "12": { "activo": true },
+    "13": { "activo": true },
+    "14": { "activo": true },
+    "15": { "activo": true },
+    "16": { "activo": true },
+    "17": { "activo": true },
+    "18": { "activo": true },
+    "19": { "activo": true },
+    "20": { "activo": true },
+    "21": { "activo": true },
+    "22": { "activo": true },
+    "23": { "activo": true },
+    "24": { "activo": false }
+  },
+  "reservas": {
+    "1": {
+      "usuario_id": "1",
+      "equipo_id": "1",
+      "fecha": "2026-04-15",
+      "hora_inicio": "08:00",
+      "hora_fin": "10:00"
+    }
+  }
+}
