@@ -1,24 +1,8 @@
-"""
-setup.py - Genera e inicializa data/db.json con la estructura base.
-
-Responsabilidad:
-- Crear el archivo db.json con 24 equipos activos (IDs 1-24)
-- Inicializar colecciones vacías para usuarios y reservas
-- No sobreescribir db.json si ya existe
-"""
-
-import json
-import os
+import json, os
 from pathlib import Path
 
 
 def generar_db():
-    """
-    Genera la estructura base de la base de datos.
-    
-    Returns:
-        dict: Estructura de db.json con equipos, usuarios y reservas
-    """
     equipos = [{"id": i, "activo": True} for i in range(1, 25)]
     
     return {
@@ -29,16 +13,6 @@ def generar_db():
 
 
 def crear_db_json():
-    """
-    Crea el archivo db.json en el directorio data/.
-    
-    - Verifica si el archivo ya existe para no sobreescribir
-    - Crea el directorio data/ si no existe
-    - Escribe el JSON con formato legible (indent=2)
-    
-    Returns:
-        bool: True si se creó el archivo, False si ya existía
-    """
     # Obtener la ruta del directorio raíz del proyecto (un nivel arriba de python/)
     proyecto_raiz = Path(__file__).parent.parent
     data_dir = proyecto_raiz / "data"

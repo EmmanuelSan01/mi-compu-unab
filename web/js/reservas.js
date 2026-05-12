@@ -1,16 +1,3 @@
-/**
- * reservas.js - Lógica de negocio para el sistema de reservas
- * 
- * Responsabilidad:
- * - Autenticación de usuarios
- * - Verificación de disponibilidad
- * - Creación y cancelación de reservas
- * - Consulta de reservas por usuario
- * 
- * Este módulo NO contiene lógica de renderizado ni manipulación del DOM.
- * Expone funciones puras que el futuro frontend consumirá.
- */
-
 import { obtener, crear, eliminar } from './api.js';
 
 // Constantes de reglas de negocio
@@ -20,34 +7,15 @@ const MIN_DURACION_MINUTOS = 30;
 const MAX_DURACION_HORAS = 4;
 const MAX_RESERVAS_ACTIVAS = 2;
 
-/**
- * Convierte fecha y hora en un objeto Date.
- * 
- * @param {string} fecha - Fecha en formato 'YYYY-MM-DD'
- * @param {string} hora - Hora en formato 'HH:MM'
- * @returns {Date} Objeto Date combinando fecha y hora
- */
 function aDateTime(fecha, hora) {
   return new Date(`${fecha}T${hora}:00`);
 }
 
-/**
- * Obtiene la fecha actual en formato 'YYYY-MM-DD'.
- * 
- * @returns {string} Fecha actual
- */
 function obtenerFechaHoy() {
   const hoy = new Date();
   return hoy.toISOString().split('T')[0];
 }
 
-/**
- * Calcula la diferencia en días entre dos fechas.
- * 
- * @param {string} fecha1 - Primera fecha en formato 'YYYY-MM-DD'
- * @param {string} fecha2 - Segunda fecha en formato 'YYYY-MM-DD'
- * @returns {number} Diferencia en días (positivo si fecha1 > fecha2)
- */
 function diferenciaDias(fecha1, fecha2) {
   const d1 = new Date(fecha1);
   const d2 = new Date(fecha2);
@@ -55,30 +23,12 @@ function diferenciaDias(fecha1, fecha2) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 
-/**
- * Calcula la duración en minutos entre dos horas.
- * 
- * @param {string} horaInicio - Hora de inicio en formato 'HH:MM'
- * @param {string} horaFin - Hora de fin en formato 'HH:MM'
- * @returns {number} Duración en minutos
- */
 function calcularDuracionMinutos(horaInicio, horaFin) {
   const [h1, m1] = horaInicio.split(':').map(Number);
   const [h2, m2] = horaFin.split(':').map(Number);
   return (h2 * 60 + m2) - (h1 * 60 + m1);
 }
 
-// ============================================================================
-// 6.1 Autenticación de usuario
-// ============================================================================
-
-/**
- * Busca un usuario por email y valida su contraseña.
- * 
- * @param {string} email - Email del usuario
- * @param {string} password - Contraseña en texto plano
- * @returns {Promise<Object|null>} El objeto usuario si las credenciales son válidas, null si no
- */
 async function autenticarUsuario(email, password) {
   const usuarios = await obtener('usuarios');
   
@@ -96,22 +46,6 @@ async function autenticarUsuario(email, password) {
   return usuario;
 }
 
-// ============================================================================
-// 6.2 Consulta de disponibilidad
-// ============================================================================
-
-/**
- * Determina si un equipo está disponible en una franja horaria dada.
- * 
- * Replica la condición de solapamiento del algoritmo Python:
- *   hay conflicto si NOT (fin1 <= inicio2 OR fin2 <= inicio1)
- * 
- * @param {number} equipo_id - ID del equipo
- * @param {string} fecha - Fecha de la reserva en formato 'YYYY-MM-DD'
- * @param {string} hora_inicio - Hora de inicio en formato 'HH:MM'
- * @param {string} hora_fin - Hora de fin en formato 'HH:MM'
- * @returns {Promise<boolean>} true si el equipo está libre, false si hay solapamiento
- */
 async function verificarDisponibilidad(equipo_id, fecha, hora_inicio, hora_fin) {
   const reservas = await obtener('reservas');
   
@@ -129,8 +63,7 @@ async function verificarDisponibilidad(equipo_id, fecha, hora_inicio, hora_fin) 
     const inicio2 = aDateTime(reserva.fecha, reserva.hora_inicio);
     const fin2 = aDateTime(reserva.fecha, reserva.hora_fin);
     
-    // Condición de solapamiento (De Morgan sobre NO-solapamiento):
-    // Hay solapamiento si NOT (fin1 <= inicio2 OR fin2 <= inicio1)
+    // Condición de solapamiento
     const haySolapamiento = !(fin1 <= inicio2 || fin2 <= inicio1);
     
     if (haySolapamiento) {
@@ -141,30 +74,6 @@ async function verificarDisponibilidad(equipo_id, fecha, hora_inicio, hora_fin) 
   return true; // Disponible
 }
 
-// ============================================================================
-// 6.3 Crear reserva
-// ============================================================================
-
-/**
- * Crea una nueva reserva tras validar disponibilidad y reglas de negocio.
- * 
- * Validaciones (en orden):
- * 1. La fecha no es anterior a hoy
- * 2. La fecha no supera los 7 días desde hoy
- * 3. La fecha no es posterior al 2026-05-29
- * 4. El equipo existe y está activo
- * 5. La duración es de al menos 30 minutos
- * 6. La duración no supera las 4 horas
- * 7. El usuario no excede el límite de 2 reservas activas
- * 8. El horario no presenta solapamiento
- * 
- * @param {number} usuario_id - ID del usuario
- * @param {number} equipo_id - ID del equipo
- * @param {string} fecha - Fecha en formato 'YYYY-MM-DD'
- * @param {string} hora_inicio - Hora de inicio en formato 'HH:MM'
- * @param {string} hora_fin - Hora de fin en formato 'HH:MM'
- * @returns {Promise<{ok: boolean, mensaje: string, reserva?: Object}>}
- */
 async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin) {
   const hoy = obtenerFechaHoy();
   
@@ -233,9 +142,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
   
   // 7. El usuario no excede el límite de 2 reservas activas
   const reservas = await obtener('reservas');
-  const reservasUsuario = reservas.filter(r => r.usuario_id === usuario_id);
-  
-  // Solo contar reservas futuras o de hoy
+  const reservasUsuario = reservas.filter(r => r.usuario_id === usuario_id);  
   const reservasActivas = reservasUsuario.filter(r => r.fecha >= hoy);
   
   if (reservasActivas.length >= MAX_RESERVAS_ACTIVAS) {
@@ -271,17 +178,6 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
   };
 }
 
-// ============================================================================
-// 6.4 Eliminar reserva (cancelación)
-// ============================================================================
-
-/**
- * Elimina una reserva por su ID, verificando que pertenezca al usuario indicado.
- * 
- * @param {number} reserva_id - ID de la reserva a cancelar
- * @param {number} usuario_id - ID del usuario que solicita la cancelación
- * @returns {Promise<{ok: boolean, mensaje: string}>}
- */
 async function cancelarReserva(reserva_id, usuario_id) {
   const reservas = await obtener('reservas');
   const reserva = reservas.find(r => r.id === reserva_id);
@@ -317,16 +213,6 @@ async function cancelarReserva(reserva_id, usuario_id) {
   };
 }
 
-// ============================================================================
-// 6.5 Consultar reservas de un usuario
-// ============================================================================
-
-/**
- * Retorna todas las reservas activas de un usuario, enriquecidas con el número de equipo.
- * 
- * @param {number} usuario_id - ID del usuario
- * @returns {Promise<Array<Object>>} Lista de reservas ordenadas por fecha y hora
- */
 async function obtenerReservasDeUsuario(usuario_id) {
   const reservas = await obtener('reservas');
   
@@ -346,27 +232,11 @@ async function obtenerReservasDeUsuario(usuario_id) {
   return reservasUsuario;
 }
 
-// ============================================================================
-// Funciones auxiliares adicionales
-// ============================================================================
-
-/**
- * Obtiene todos los equipos disponibles.
- * 
- * @returns {Promise<Array<Object>>} Lista de equipos activos
- */
 async function obtenerEquiposDisponibles() {
   const equipos = await obtener('equipos');
   return equipos.filter(e => e.activo);
 }
 
-/**
- * Obtiene las reservas de un equipo en una fecha específica.
- * 
- * @param {number} equipo_id - ID del equipo
- * @param {string} fecha - Fecha en formato 'YYYY-MM-DD'
- * @returns {Promise<Array<Object>>} Lista de reservas ordenadas por hora
- */
 async function obtenerReservasDeEquipo(equipo_id, fecha) {
   const reservas = await obtener('reservas');
   
@@ -380,14 +250,6 @@ async function obtenerReservasDeEquipo(equipo_id, fecha) {
   return reservasEquipo;
 }
 
-/**
- * Registra un nuevo usuario en el sistema.
- * 
- * @param {string} nombre - Nombre del usuario
- * @param {string} email - Email del usuario
- * @param {string} password - Contraseña en texto plano
- * @returns {Promise<{ok: boolean, mensaje: string, usuario?: Object}>}
- */
 async function registrarUsuario(nombre, email, password) {
   // Verificar que el email no esté registrado
   const usuarios = await obtener('usuarios');
@@ -414,32 +276,11 @@ async function registrarUsuario(nombre, email, password) {
   };
 }
 
-// Exportar funciones para uso como módulo ES6
+// Exportaciones
 export {
-  // Autenticación
-  autenticarUsuario,
-  registrarUsuario,
-  
-  // Disponibilidad
-  verificarDisponibilidad,
-  obtenerEquiposDisponibles,
-  obtenerReservasDeEquipo,
-  
-  // Reservas
-  crearReserva,
-  cancelarReserva,
-  obtenerReservasDeUsuario,
-  
-  // Utilidades
-  aDateTime,
-  obtenerFechaHoy,
-  diferenciaDias,
-  calcularDuracionMinutos,
-  
-  // Constantes
-  FECHA_CIERRE_SEMESTRE,
-  MAX_DIAS_ANTICIPACION,
-  MIN_DURACION_MINUTOS,
-  MAX_DURACION_HORAS,
-  MAX_RESERVAS_ACTIVAS
+  FECHA_CIERRE_SEMESTRE, MAX_DIAS_ANTICIPACION, MIN_DURACION_MINUTOS, MAX_DURACION_HORAS, MAX_RESERVAS_ACTIVAS,
+  autenticarUsuario, registrarUsuario,    
+  verificarDisponibilidad, obtenerEquiposDisponibles, obtenerReservasDeEquipo,
+  crearReserva, cancelarReserva, obtenerReservasDeUsuario,
+  aDateTime, obtenerFechaHoy, diferenciaDias, calcularDuracionMinutos
 };

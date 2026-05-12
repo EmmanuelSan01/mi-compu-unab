@@ -1,26 +1,9 @@
-/**
- * api.js - Capa de datos con patrón try-catch-fallback
- * 
- * Responsabilidad:
- * - Gestionar comunicación con json-server (modo local)
- * - Fallback automático a db.json + localStorage (modo remoto)
- * - CRUD genérico para todas las colecciones
- */
-
-// Constantes de configuración
 const API_BASE_URL = 'http://localhost:3000';
 const REMOTE_DB_URL = '../../data/db.json';
 
-// Estado del modo de operación
 let modoActivo = null; // 'local' | 'remoto' | null (no inicializado)
 let dbCache = null; // Cache de db.json en modo remoto
 
-/**
- * Función interna de transporte: intenta local, cae a remoto si falla.
- * 
- * @param {string} localUrl - URL completa del endpoint local
- * @returns {Promise<{response: Response, isLocal: boolean}>}
- */
 const tryFetch = async (localUrl) => {
   try {
     const response = await fetch(localUrl);
@@ -33,11 +16,6 @@ const tryFetch = async (localUrl) => {
   }
 };
 
-/**
- * Inicializa la API detectando el modo de operación.
- * 
- * @returns {Promise<{ok: boolean, modo: string|null}>}
- */
 async function inicializarAPI() {
   try {
     const { response, isLocal } = await tryFetch(`${API_BASE_URL}/equipos`);
@@ -66,21 +44,10 @@ async function inicializarAPI() {
   }
 }
 
-/**
- * Obtiene el modo actual de operación.
- * 
- * @returns {string|null} 'local', 'remoto', o null si no está inicializado
- */
 function obtenerModo() {
   return modoActivo;
 }
 
-/**
- * Obtiene datos de localStorage para una colección.
- * 
- * @param {string} recurso - Nombre de la colección ('usuarios' o 'reservas')
- * @returns {Array} Array de items almacenados localmente
- */
 function obtenerDeLocalStorage(recurso) {
   try {
     const data = localStorage.getItem(recurso);
@@ -91,12 +58,6 @@ function obtenerDeLocalStorage(recurso) {
   }
 }
 
-/**
- * Guarda datos en localStorage para una colección.
- * 
- * @param {string} recurso - Nombre de la colección
- * @param {Array} datos - Array de items a guardar
- */
 function guardarEnLocalStorage(recurso, datos) {
   try {
     localStorage.setItem(recurso, JSON.stringify(datos));
@@ -105,12 +66,6 @@ function guardarEnLocalStorage(recurso, datos) {
   }
 }
 
-/**
- * Obtiene todos los items de un recurso.
- * 
- * @param {string} recurso - Nombre de la colección ('equipos', 'usuarios', 'reservas')
- * @returns {Promise<Array>} Array de items
- */
 async function obtener(recurso) {
   // Modo no inicializado o fallido
   if (modoActivo === null) {
@@ -154,7 +109,7 @@ async function obtener(recurso) {
       }
     }
     
-    // Para equipos, solo retornar datos base (no se modifican localmente)
+    // Para equipos, solo retornar datos base (no se modifican)
     if (recurso === 'equipos') {
       return datosBase;
     }
@@ -163,20 +118,12 @@ async function obtener(recurso) {
     const datosLocales = obtenerDeLocalStorage(recurso);
     
     // Concatenar datos de db.json con datos de localStorage
-    // Los datos de localStorage van después para mantener IDs únicos
     return [...datosBase, ...datosLocales];
   }
   
   return [];
 }
 
-/**
- * Crea un nuevo item en un recurso.
- * 
- * @param {string} recurso - Nombre de la colección ('usuarios' o 'reservas')
- * @param {Object} datos - Datos del nuevo item (sin ID)
- * @returns {Promise<Object>} Item creado con ID asignado
- */
 async function crear(recurso, datos) {
   // Modo no inicializado
   if (modoActivo === null) {
@@ -230,13 +177,6 @@ async function crear(recurso, datos) {
   throw new Error('Modo de API no válido');
 }
 
-/**
- * Elimina un item de un recurso por su ID.
- * 
- * @param {string} recurso - Nombre de la colección ('reservas')
- * @param {number} id - ID del item a eliminar
- * @returns {Promise<{ok: boolean}>}
- */
 async function eliminar(recurso, id) {
   // Modo no inicializado
   if (modoActivo === null) {
@@ -271,33 +211,15 @@ async function eliminar(recurso, id) {
       guardarEnLocalStorage(recurso, datosLocales);
       return { ok: true };
     }
-    
-    // Si no está en localStorage, verificar si está en db.json
-    // (no se puede eliminar de db.json en modo remoto, pero reportamos ok)
-    if (dbCache && dbCache[recurso]) {
-      const existeEnBase = dbCache[recurso].some(item => item.id === id);
-      if (existeEnBase) {
-        // Marcar como eliminado en localStorage (lista negra)
-        const eliminados = obtenerDeLocalStorage(`${recurso}_eliminados`);
-        eliminados.push(id);
-        guardarEnLocalStorage(`${recurso}_eliminados`, eliminados);
-        return { ok: true };
-      }
-    }
-    
+       
     return { ok: false };
   }
   
   throw new Error('Modo de API no válido');
 }
 
-// Exportar funciones para uso como módulo ES6
+// Exportaciones
 export {
-  inicializarAPI,
-  obtenerModo,
-  obtener,
-  crear,
-  eliminar,
-  API_BASE_URL,
-  REMOTE_DB_URL
+  API_BASE_URL, REMOTE_DB_URL,
+  inicializarAPI, obtenerModo, obtener, crear,eliminar
 };

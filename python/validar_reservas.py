@@ -1,49 +1,11 @@
-"""
-validar_reservas.py - Algoritmo central de detección de conflictos por solapamiento.
-
-Responsabilidad:
-- Detectar conflictos de solapamiento entre reservas sobre el mismo equipo
-- Comparar intervalos de tiempo usando objetos datetime
-- Retornar lista de conflictos con información detallada
-"""
-
 from datetime import datetime
 
 
 def a_datetime(fecha: str, hora: str) -> datetime:
-    """
-    Combina fecha 'YYYY-MM-DD' y hora 'HH:MM' en un objeto datetime.
-    
-    Args:
-        fecha: Fecha en formato 'YYYY-MM-DD'
-        hora: Hora en formato 'HH:MM' (24 horas)
-    
-    Returns:
-        datetime: Objeto datetime combinando fecha y hora
-    """
     return datetime.strptime(f"{fecha} {hora}", "%Y-%m-%d %H:%M")
 
 
 def detectar_conflictos(reservas: list) -> list:
-    """
-    Detecta conflictos de solapamiento entre reservas.
-    
-    Algoritmo:
-    - Compara cada par de reservas (i, j) donde j > i
-    - Solo compara reservas del mismo equipo
-    - Detecta solapamiento usando: NOT (fin1 <= inicio2 OR fin2 <= inicio1)
-    
-    Args:
-        reservas: Lista de diccionarios con las reservas.
-                  Cada reserva debe tener: id, equipo_id, fecha, hora_inicio, hora_fin
-    
-    Returns:
-        list: Lista de conflictos encontrados, cada uno con:
-              - reserva_1: ID de la primera reserva
-              - reserva_2: ID de la segunda reserva
-              - equipo_id: ID del equipo en conflicto
-              - detalle: Descripción legible del solapamiento
-    """
     conflictos = []
     n = len(reservas)
     
@@ -62,8 +24,7 @@ def detectar_conflictos(reservas: list) -> list:
             inicio2 = a_datetime(r2['fecha'], r2['hora_inicio'])
             fin2 = a_datetime(r2['fecha'], r2['hora_fin'])
             
-            # Condición de solapamiento (De Morgan sobre NO-solapamiento):
-            # Hay solapamiento si NOT (fin1 <= inicio2 OR fin2 <= inicio1)
+            # Condición de solapamiento
             hay_solapamiento = not (fin1 <= inicio2 or fin2 <= inicio1)
             
             if hay_solapamiento:
@@ -82,12 +43,6 @@ def detectar_conflictos(reservas: list) -> list:
 
 
 def mostrar_resumen(conflictos: list) -> None:
-    """
-    Muestra un resumen de los conflictos detectados.
-    
-    Args:
-        conflictos: Lista de conflictos retornada por detectar_conflictos()
-    """
     if not conflictos:
         print("No se detectaron conflictos de solapamiento.")
         return
