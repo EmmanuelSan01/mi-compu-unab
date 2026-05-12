@@ -1,11 +1,41 @@
 import { obtener, crear, eliminar } from './api.js';
 
 // Constantes de reglas de negocio
+const FECHA_INICIO_SEMESTRE = '2026-02-02';
 const FECHA_CIERRE_SEMESTRE = '2026-05-29';
 const MAX_DIAS_ANTICIPACION = 7;
 const MIN_DURACION_MINUTOS = 30;
 const MAX_DURACION_HORAS = 4;
 const MAX_RESERVAS_ACTIVAS = 2;
+const DIAS_BLOQUEADOS = [0, 6]; // 0 = domingo, 6 = sábado
+const FECHAS_BLOQUEADAS = ['2026-03-23', '2026-04-02', '2026-04-03', '2026-05-01', '2026-05-18'];
+const HORA_APERTURA = '08:00';
+const HORA_CIERRE = '20:00';
+const BLOQUES_BLOQUEADOS = {
+  1: [
+    { motivo: 'Clase Lógica y Algoritmos', horaInicio: '09:00', horaFin: '12:00' },
+    { motivo: 'Clase Álgebra Lineal', horaInicio: '14:00', horaFin: '16:00' },
+    { motivo: 'Clase Programación de Computadores', horaInicio: '16:00', horaFin: '18:00' }
+  ],
+  2: [
+    { motivo: 'Clase Ciencia de Datos e Inteligencia Artificial', horaInicio: '08:00', horaFin: '10:00' },
+    { motivo: 'Clase Procesos Ágiles de Desarrollo de Software', horaInicio: '14:00', horaFin: '17:00' }
+  ],
+  3: [
+    { motivo: 'Clase Programación de Computadores', horaInicio: '08:00', horaFin: '10:00' },
+    { motivo: 'Clase Fundamentos de Programación', horaInicio: '10:00', horaFin: '12:00' },
+    { motivo: 'Clase Bases de Datos II', horaInicio: '18:00', horaFin: '20:00' }
+  ],
+  4: [
+    { motivo: 'Clase Arquitectura de Software', horaInicio: '08:00', horaFin: '10:00' },
+    { motivo: 'Clase Desarrollo y Arquitectura Backend', horaInicio: '10:00', horaFin: '13:00' },
+    { motivo: 'Clase Publicidad Digital', horaInicio: '14:00', horaFin: '16:00' },
+    { motivo: 'Clase Big Data y Analítica en el TEI', horaInicio: '16:00', horaFin: '19:00' }
+  ],
+  5: [
+    { motivo: 'Clase Inteligencia de Negocios', horaInicio: '10:00', horaFin: '13:00' }
+  ]
+};
 
 function aDateTime(fecha, hora) {
   return new Date(`${fecha}T${hora}:00`);
@@ -76,8 +106,19 @@ async function verificarDisponibilidad(equipo_id, fecha, hora_inicio, hora_fin) 
 
 async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin) {
   const hoy = obtenerFechaHoy();
+  const diaSemana = new Date(fecha + 'T00:00:00').getDay();
   
-  // 1. La fecha no es anterior a hoy
+  // --- Validaciones locales (sin llamadas a la API) ---
+  
+  // 1. La fecha no es anterior al inicio del semestre
+  if (fecha < FECHA_INICIO_SEMESTRE) {
+    return {
+      ok: false,
+      mensaje: `La fecha no puede ser anterior al ${FECHA_INICIO_SEMESTRE} (inicio del semestre)`
+    };
+  }
+  
+  // 2. La fecha no es anterior a hoy
   if (fecha < hoy) {
     return {
       ok: false,
@@ -85,7 +126,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 2. La fecha no supera los 7 días desde hoy
+  // 3. La fecha no supera los 7 días desde hoy
   const diasAnticipacion = diferenciaDias(fecha, hoy);
   if (diasAnticipacion > MAX_DIAS_ANTICIPACION) {
     return {
@@ -94,7 +135,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 3. La fecha no es posterior al cierre del semestre
+  // 4. La fecha no es posterior al cierre del semestre
   if (fecha > FECHA_CIERRE_SEMESTRE) {
     return {
       ok: false,
@@ -102,7 +143,82 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 4. El equipo existe y está activo
+  // 5. La fecha no cae en días bloqueados (fin de semana)
+  if (DIAS_BLOQUEADOS.includes(diaSemana)) {
+    return {
+      ok: false,
+      mensaje: 'No se permiten reservas en fines de semana'
+    };
+  }
+  
+  // 6. La fecha no está en fechas bloqueadas (feriados)
+  if (FECHAS_BLOQUEADAS.includes(fecha)) {
+    return {
+      ok: false,
+      mensaje: 'No se permiten reservas en esta fecha (feriado o día no hábil)'
+    };
+  }
+  
+  // 7. La hora de inicio es mayor o igual a la hora de apertura
+  if (hora_inicio < HORA_APERTURA) {
+    return {
+      ok: false,
+      mensaje: `La hora de inicio no puede ser anterior a las ${HORA_APERTURA}`
+    };
+  }
+  
+  // 8. La hora de fin es menor o igual a la hora de cierre
+  if (hora_fin > HORA_CIERRE) {
+    return {
+      ok: false,
+      mensaje: `La hora de fin no puede ser posterior a las ${HORA_CIERRE}`
+    };
+  }
+  
+  // 9. La duración es de al menos 30 minutos
+  const duracionMinutos = calcularDuracionMinutos(hora_inicio, hora_fin);
+  if (duracionMinutos < MIN_DURACION_MINUTOS) {
+    return {
+      ok: false,
+      mensaje: `La duración mínima de la reserva es de ${MIN_DURACION_MINUTOS} minutos`
+    };
+  }
+  
+  // 10. La duración no supera las 4 horas
+  const duracionHoras = duracionMinutos / 60;
+  if (duracionHoras > MAX_DURACION_HORAS) {
+    return {
+      ok: false,
+      mensaje: `La duración máxima de la reserva es de ${MAX_DURACION_HORAS} horas`
+    };
+  }
+  
+  // 11. La franja no solapa con el bloque de almuerzo (13:00-14:00)
+  const solapaAlmuerzo = !(hora_fin <= '13:00' || hora_inicio >= '14:00');
+  if (solapaAlmuerzo) {
+    return {
+      ok: false,
+      mensaje: 'El horario seleccionado solapa con el bloque de almuerzo (13:00-14:00)'
+    };
+  }
+  
+  // 12. La franja no solapa con bloques bloqueados del día
+  const bloquesDia = BLOQUES_BLOQUEADOS[diaSemana];
+  if (bloquesDia) {
+    for (const bloque of bloquesDia) {
+      const solapaBloque = !(hora_fin <= bloque.horaInicio || hora_inicio >= bloque.horaFin);
+      if (solapaBloque) {
+        return {
+          ok: false,
+          mensaje: `El horario seleccionado solapa con: ${bloque.motivo} (${bloque.horaInicio}-${bloque.horaFin})`
+        };
+      }
+    }
+  }
+  
+  // --- Validaciones con llamadas a la API ---
+  
+  // 13. El equipo existe y está activo
   const equipos = await obtener('equipos');
   const equipo = equipos.find(e => e.id === equipo_id);
   
@@ -120,27 +236,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 5. La duración es de al menos 30 minutos
-  const duracionMinutos = calcularDuracionMinutos(hora_inicio, hora_fin);
-  
-  if (duracionMinutos < MIN_DURACION_MINUTOS) {
-    return {
-      ok: false,
-      mensaje: `La duración mínima de la reserva es de ${MIN_DURACION_MINUTOS} minutos`
-    };
-  }
-  
-  // 6. La duración no supera las 4 horas
-  const duracionHoras = duracionMinutos / 60;
-  
-  if (duracionHoras > MAX_DURACION_HORAS) {
-    return {
-      ok: false,
-      mensaje: `La duración máxima de la reserva es de ${MAX_DURACION_HORAS} horas`
-    };
-  }
-  
-  // 7. El usuario no excede el límite de 2 reservas activas
+  // 14. El usuario no excede el límite de 2 reservas activas
   const reservas = await obtener('reservas');
   const reservasUsuario = reservas.filter(r => r.usuario_id === usuario_id);  
   const reservasActivas = reservasUsuario.filter(r => r.fecha >= hoy);
@@ -152,7 +248,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 8. El horario no presenta solapamiento
+  // 15. El horario no presenta solapamiento con otras reservas
   const disponible = await verificarDisponibilidad(equipo_id, fecha, hora_inicio, hora_fin);
   
   if (!disponible) {
@@ -278,7 +374,8 @@ async function registrarUsuario(nombre, email, password) {
 
 // Exportaciones
 export {
-  FECHA_CIERRE_SEMESTRE, MAX_DIAS_ANTICIPACION, MIN_DURACION_MINUTOS, MAX_DURACION_HORAS, MAX_RESERVAS_ACTIVAS,
+  FECHA_INICIO_SEMESTRE, FECHA_CIERRE_SEMESTRE, MAX_DIAS_ANTICIPACION, MIN_DURACION_MINUTOS, MAX_DURACION_HORAS, MAX_RESERVAS_ACTIVAS,
+  DIAS_BLOQUEADOS, FECHAS_BLOQUEADAS, HORA_APERTURA, HORA_CIERRE, BLOQUES_BLOQUEADOS,
   autenticarUsuario, registrarUsuario,    
   verificarDisponibilidad, obtenerEquiposDisponibles, obtenerReservasDeEquipo,
   crearReserva, cancelarReserva, obtenerReservasDeUsuario,
