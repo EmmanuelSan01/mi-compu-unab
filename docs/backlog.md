@@ -1,23 +1,3 @@
-**Backlog Mi Compu UNAB**
-
-Carlos Gonzáles Aguilera
-
-Emmanuel Sánchez Estepa
-
-Joseph Sneider Villamizar Patiño
-
-Ingeniera de Sistemas
-
-Juliana Ramírez Arenas
-
-Universidad Autónoma de Bucaramanga
-
-Procesos Ágiles de Desarrollo de Software
-
-19 de mayo de 2026
-
-Bucaramanga \- Santander
-
 # **Backlog Priorizado del Producto**
 
 ### **1\. Configuración del entorno de desarrollo y estructura de carpetas**
