@@ -5,8 +5,8 @@ Plataforma web para la gestión de reservas de equipos en la sala de cómputo **
 > Proyecto académico desarrollado en el curso **Lógica y Algoritmos** — Tecnología en Desarrollo de Software, UNAB.  
 > Semestre 2026-A · Bucaramanga, Santander.
 
-**Autores:** Carlos González Aguilera · Emmanuel Sánchez Estepa · Joseph Sneider Villamizar Patiño  
-**Docente:** Antonio José Rodríguez Linares
+#### **Autores:** Carlos González Aguilera · Emmanuel Sánchez Estepa · Joseph Sneider Villamizar Patiño  
+#### **Docente:** Antonio José Rodríguez Linares
 ---
 
 ## 📋 Descripción
