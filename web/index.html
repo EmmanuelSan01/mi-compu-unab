@@ -1,12 +1,526 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>index</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reserva de Computadores — Salón de Cómputo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f4f4f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem;
+      color: #1a1a1a;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e0dfd8;
+      padding: 2rem;
+      width: 100%;
+      max-width: 680px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .header h1 { font-size: 18px; font-weight: 500; }
+    .header p  { font-size: 13px; color: #666; margin-top: 2px; }
+    .legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .badge-ok   { background: #EAF3DE; color: #3B6D11; }
+    .badge-sel  { background: #B5D4F4; color: #0C447C; }
+    .badge-busy { background: #f0efe9; color: #888; }
+
+    /* Tablero docente */
+    .teacher-desk {
+      background: #f7f6f2;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #888;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .teacher-desk svg { opacity: .65; }
+
+    /* Secciones A y B */
+    .sections {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+    }
+    .section-col { flex: 1; min-width: 0; }
+    .section-title {
+      font-size: 11px;
+      color: #999;
+      text-align: center;
+      letter-spacing: .6px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .divider { width: 1px; background: #e0dfd8; }
+
+    /* Grid de PCs */
+    .pc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .pc-seat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 4px 6px;
+      border-radius: 8px;
+      border: 1.5px solid #ccc;
+      cursor: pointer;
+      background: #fff;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+    }
+    .pc-seat:hover:not(.occupied) {
+      border-color: #378ADD;
+      background: #E6F1FB;
+    }
+    .pc-seat:focus-visible {
+      outline: 2px solid #378ADD;
+      outline-offset: 2px;
+    }
+    .pc-seat.selected {
+      border-color: #185FA5;
+      background: #B5D4F4;
+    }
+    .pc-seat.occupied {
+      background: #f7f6f2;
+      border-color: #e0dfd8;
+      cursor: not-allowed;
+      opacity: .5;
+    }
+    .pc-seat svg { width: 32px; height: 28px; }
+    .pc-label {
+      font-size: 11px;
+      margin-top: 4px;
+      color: #888;
+      font-weight: 500;
+    }
+    .pc-seat.selected .pc-label { color: #0C447C; }
+
+    /* Barra inferior */
+    .footer-bar {
+      margin-top: 1.25rem;
+      background: #f7f6f2;
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .footer-bar span { font-size: 13px; color: #666; }
+    .footer-bar strong { color: #1a1a1a; }
+
+    /* Botones */
+    .btn-primary {
+      background: #185FA5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background .15s, opacity .15s;
+    }
+    .btn-primary:hover:not(:disabled) { background: #0C447C; }
+    .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+    .btn-cancel {
+      background: transparent;
+      color: #666;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 9px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 6px;
+      transition: background .15s;
+    }
+    .btn-cancel:hover { background: #f7f6f2; }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e0dfd8;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 380px;
+      position: relative;
+    }
+    .modal-box h2 { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+    .modal-subtitle { font-size: 13px; color: #666; margin-bottom: 1.25rem; }
+
+    /* Formulario */
+    .form-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .form-row label { font-size: 13px; color: #555; }
+    .form-row input,
+    .form-row select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color .15s;
+      background: #fff;
+      color: #1a1a1a;
+    }
+    .form-row input:focus,
+    .form-row select:focus { border-color: #378ADD; }
+    .form-row-2col { display: flex; gap: 10px; }
+    .form-row-2col .form-row { flex: 1; }
+
+    /* Toast notificación */
+    .toast {
+      background: #EAF3DE;
+      border: 1px solid #C0DD97;
+      color: #27500A;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 14px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .toast.show { display: block; }
+
+    /* Visually hidden (accesibilidad) */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+  </style>
 </head>
 <body>
-  /* json-server --watch data/db.json --port 3000 */
-  <span>Hello, World!</span>
+
+<div class="container">
+  <h1 class="sr-only">Reserva de computadores — salón de cómputo</h1>
+
+  <!-- Toast de confirmación -->
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <h1>Salón de cómputo</h1>
+      <p>Selecciona un computador disponible para reservar</p>
+    </div>
+    <div class="legend">
+      <span class="badge badge-ok">● Disponible</span>
+      <span class="badge badge-sel">● Seleccionado</span>
+      <span class="badge badge-busy">● Ocupado</span>
+    </div>
+  </div>
+
+  <!-- Tablero docente -->
+  <div class="teacher-desk">
+    <svg width="22" height="18" viewBox="0 0 22 18" fill="none" aria-hidden="true">
+      <rect x="1" y="1" width="20" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="7" y="15" width="8" height="2" rx="1" fill="currentColor" opacity=".4"/>
+      <line x1="5" y1="17" x2="17" y2="17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    TABLERO / DOCENTE
+  </div>
+
+  <!-- Secciones de PCs -->
+  <div class="sections">
+    <div class="section-col">
+      <p class="section-title">Sección A</p>
+      <div class="pc-grid" id="section-a"></div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-col">
+      <p class="section-title">Sección B</p>
+      <div class="pc-grid" id="section-b"></div>
+    </div>
+  </div>
+
+  <!-- Barra inferior -->
+  <div class="footer-bar">
+    <span>Disponibles: <strong id="avail-count">24</strong> / 24</span>
+    <button class="btn-primary" id="btn-reserve" disabled>
+      Reservar computador seleccionado
+    </button>
+  </div>
+</div>
+
+<!-- Modal de reserva -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-box">
+    <h2 id="modal-title">Confirmar reserva</h2>
+    <p class="modal-subtitle" id="modal-subtitle"></p>
+
+    <div class="form-row">
+      <label for="f-nombre">Nombre completo</label>
+      <input type="text" id="f-nombre" placeholder="Ej. Ana García" autocomplete="name" />
+    </div>
+
+    <div class="form-row">
+      <label for="f-id">Código o documento</label>
+      <input type="text" id="f-id" placeholder="Ej. 2021153042" />
+    </div>
+
+    <div class="form-row-2col">
+      <div class="form-row">
+        <label for="f-fecha">Fecha</label>
+        <input type="date" id="f-fecha" />
+      </div>
+      <div class="form-row">
+        <label for="f-hora">Hora</label>
+        <select id="f-hora">
+          <option>07:00</option><option>08:00</option><option>09:00</option>
+          <option>10:00</option><option>11:00</option><option>12:00</option>
+          <option>13:00</option><option>14:00</option><option>15:00</option>
+          <option>16:00</option><option>17:00</option><option>18:00</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label for="f-motivo">Motivo de uso</label>
+      <select id="f-motivo">
+        <option>Clase / práctica</option>
+        <option>Trabajo independiente</option>
+        <option>Examen</option>
+        <option>Investigación</option>
+        <option>Otro</option>
+      </select>
+    </div>
+
+    <button class="btn-primary" id="btn-confirm" style="width:100%; margin-top:4px;">
+      Confirmar reserva
+    </button>
+    <button class="btn-cancel" id="btn-cancel">Cancelar</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const TOTAL = 24;
+
+  /* PCs que ya están ocupados (índices 0-based).
+     Puedes cambiar este array o llenarlo desde tu backend. */
+  const occupied = new Set();
+
+  /* Mapa de reservas: { index -> { nombre, id, fecha, hora, motivo } } */
+  const reservations = {};
+
+  let selected = null;
+
+  /* ── Icono SVG de computador ─────────────────────────── */
+  function pcIcon(color) {
+    return `<svg viewBox="0 0 32 28" fill="none" aria-hidden="true">
+      <rect x="2" y="1" width="28" height="19" rx="3"
+            stroke="${color}" stroke-width="1.5"/>
+      <rect x="10" y="21" width="12" height="3" rx="1"
+            fill="${color}" opacity=".35"/>
+      <line x1="8" y1="24.5" x2="24" y2="24.5"
+            stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>`;
+  }
+
+  /* ── Renderizar los dos grids ────────────────────────── */
+  function render() {
+    ['a', 'b'].forEach(function (sec, si) {
+      var grid = document.getElementById('section-' + sec);
+      grid.innerHTML = '';
+
+      for (var i = 0; i < 12; i++) {
+        var idx = si * 12 + i;
+        var num = idx + 1;
+        var isOccupied = occupied.has(idx);
+        var isSelected = selected === idx;
+
+        var div = document.createElement('div');
+        div.className = 'pc-seat'
+          + (isOccupied ? ' occupied' : '')
+          + (isSelected ? ' selected'  : '');
+
+        div.setAttribute('role', 'button');
+        div.setAttribute('aria-label', 'Computador PC-' + pad(num)
+          + (isOccupied ? ', ocupado' : isSelected ? ', seleccionado' : ', disponible'));
+        div.setAttribute('tabindex', isOccupied ? '-1' : '0');
+        div.dataset.idx = idx;
+
+        var color = isSelected  ? '#185FA5'
+                  : isOccupied  ? '#aaa'
+                  :               'currentColor';
+
+        div.innerHTML = pcIcon(color)
+          + '<span class="pc-label">PC-' + pad(num) + '</span>';
+
+        if (!isOccupied) {
+          div.addEventListener('click', onSelect);
+          div.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onSelect.call(this);
+            }
+          });
+        }
+        grid.appendChild(div);
+      }
+    });
+
+    /* contador */
+    document.getElementById('avail-count').textContent = TOTAL - occupied.size;
+
+    /* botón reservar */
+    var btn = document.getElementById('btn-reserve');
+    var active = selected !== null && !occupied.has(selected);
+    btn.disabled = !active;
+  }
+
+  function pad(n) {
+    return n < 10 ? '0' + n : '' + n;
+  }
+
+  function onSelect() {
+    var idx = parseInt(this.dataset.idx, 10);
+    selected = (selected === idx) ? null : idx;
+    render();
+  }
+
+  /* ── Abrir modal ─────────────────────────────────────── */
+  document.getElementById('btn-reserve').addEventListener('click', function () {
+    if (selected === null) return;
+
+    var sec = selected < 12 ? 'A' : 'B';
+    document.getElementById('modal-subtitle').textContent =
+      'Computador PC-' + pad(selected + 1) + ' — Sección ' + sec;
+
+    /* fecha de hoy por defecto */
+    document.getElementById('f-fecha').value =
+      new Date().toISOString().split('T')[0];
+
+    /* limpiar campos */
+    document.getElementById('f-nombre').value = '';
+    document.getElementById('f-id').value = '';
+
+    document.getElementById('modal').classList.add('active');
+    document.getElementById('f-nombre').focus();
+  });
+
+  /* ── Cerrar modal ────────────────────────────────────── */
+  document.getElementById('btn-cancel').addEventListener('click', closeModal);
+  document.getElementById('modal').addEventListener('click', function (e) {
+    if (e.target === this) closeModal();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+  }
+
+  /* ── Confirmar reserva ───────────────────────────────── */
+  document.getElementById('btn-confirm').addEventListener('click', function () {
+    var nombre = document.getElementById('f-nombre').value.trim();
+    var id     = document.getElementById('f-id').value.trim();
+    var fecha  = document.getElementById('f-fecha').value;
+    var hora   = document.getElementById('f-hora').value;
+    var motivo = document.getElementById('f-motivo').value;
+
+    if (!nombre || !id || !fecha) {
+      alert('Por favor completa nombre, código y fecha.');
+      return;
+    }
+
+    /* Guardar reserva */
+    reservations[selected] = { nombre: nombre, id: id, fecha: fecha, hora: hora, motivo: motivo };
+    occupied.add(selected);
+
+    var pcNum = pad(selected + 1);
+    selected = null;
+
+    closeModal();
+
+    /* Toast de confirmación */
+    showToast('✓ Reserva confirmada — PC-' + pcNum
+      + ' asignado a <strong>' + nombre + '</strong>'
+      + ' el ' + fecha + ' a las ' + hora);
+
+    render();
+
+    /* ── PUNTO DE INTEGRACIÓN ──────────────────────────
+       Aquí puedes llamar tu backend/API, por ejemplo:
+       fetch('/api/reservas', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify(reservations[parseInt(pcNum) - 1])
+       });
+    ──────────────────────────────────────────────────── */
+  });
+
+  /* ── Toast ───────────────────────────────────────────── */
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.innerHTML = msg;
+    t.classList.add('show');
+    setTimeout(function () { t.classList.remove('show'); }, 5000);
+  }
+
+  /* ── Arrancar ────────────────────────────────────────── */
+  render();
+})();
+</script>
+
 </body>
 </html>
