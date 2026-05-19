@@ -1,23 +1,3 @@
-**Especificación de Requisitos de Software \- Mi Compu UNAB**
-
-Carlos Gonzáles Aguilera
-
-Emmanuel Sánchez Estepa
-
-Joseph Sneider Villamizar Patiño
-
-Ingeniera de Sistemas
-
-Juliana Ramírez Arenas
-
-Universidad Autónoma de Bucaramanga
-
-Procesos Ágiles de Desarrollo de Software
-
-19 de mayo de 2026
-
-Bucaramanga \- Santander
-
 ## 1\. Propósito
 
 El presente documento constituye la Especificación de Requisitos de Software (SRS) del prototipo funcional de plataforma web para la gestión de reservas de equipos en la sala de cómputo **CSU 22** de la Universidad Autónoma de Bucaramanga (UNAB). Su propósito es definir de manera precisa y verificable el comportamiento esperado del sistema, los límites de su alcance y las restricciones técnicas que condicionan su desarrollo, de modo que sirva como contrato de referencia entre los desarrolladores y los evaluadores académicos del proyecto.
