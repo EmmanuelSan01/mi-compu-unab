@@ -385,6 +385,7 @@ export {
   MIN_DURACION_MINUTOS, MAX_DURACION_HORAS,
   DIAS_BLOQUEADOS, FECHAS_BLOQUEADAS, BLOQUES_BLOQUEADOS,
   HORA_APERTURA, HORA_CIERRE,
+  HORA_INICIO_ALMUERZO, HORA_FIN_ALMUERZO,
   autenticarUsuario, registrarUsuario,    
   verificarDisponibilidad, obtenerEquiposDisponibles, obtenerReservasDeEquipo,
   crearReserva, cancelarReserva, obtenerReservasDeUsuario,
