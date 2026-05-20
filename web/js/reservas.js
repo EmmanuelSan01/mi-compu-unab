@@ -11,6 +11,8 @@ const DIAS_BLOQUEADOS = [0, 6]; // 0 = domingo, 6 = sábado
 const FECHAS_BLOQUEADAS = ['2026-03-23', '2026-04-02', '2026-04-03', '2026-05-01', '2026-05-18'];
 const HORA_APERTURA = '08:00';
 const HORA_CIERRE = '20:00';
+const HORA_INICIO_ALMUERZO = '13:00';
+const HORA_FIN_ALMUERZO = '14:00';
 const BLOQUES_BLOQUEADOS = {
   1: [
     { motivo: 'Clase Lógica y Algoritmos', horaInicio: '09:00', horaFin: '12:00' },
@@ -172,8 +174,16 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
       mensaje: `La hora de fin no puede ser posterior a las ${HORA_CIERRE}`
     };
   }
-  
-  // 9. La duración es de al menos 30 minutos
+
+  // 9. La hora de fin es posterior a hora de inicio
+  if (hora_fin <= hora_inicio) {
+    return {
+      ok: false,
+      mensaje: 'La hora de fin debe ser posterior a la hora de inicio'
+    };
+  }
+
+  // 10. La duración es de al menos 30 minutos
   const duracionMinutos = calcularDuracionMinutos(hora_inicio, hora_fin);
   if (duracionMinutos < MIN_DURACION_MINUTOS) {
     return {
@@ -182,7 +192,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 10. La duración no supera las 4 horas
+  // 11. La duración no supera las 4 horas
   const duracionHoras = duracionMinutos / 60;
   if (duracionHoras > MAX_DURACION_HORAS) {
     return {
@@ -191,8 +201,8 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 11. La franja no solapa con el bloque de almuerzo (13:00-14:00)
-  const solapaAlmuerzo = !(hora_fin <= '13:00' || hora_inicio >= '14:00');
+  // 12. La franja no solapa con el bloque de almuerzo
+  const solapaAlmuerzo = !(hora_fin <= HORA_INICIO_ALMUERZO || hora_inicio >= HORA_FIN_ALMUERZO);
   if (solapaAlmuerzo) {
     return {
       ok: false,
@@ -200,7 +210,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 12. La franja no solapa con bloques bloqueados del día
+  // 13. La franja no solapa con bloques bloqueados del día
   const bloquesDia = BLOQUES_BLOQUEADOS[diaSemana];
   if (bloquesDia) {
     for (const bloque of bloquesDia) {
@@ -214,7 +224,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     }
   }
   
-  // 13. El equipo existe y está activo
+  // 14. El equipo existe y está activo
   const equipos = await obtener('equipos');
   const equipo = equipos.find(e => e.id === equipo_id);
   
@@ -232,7 +242,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 14. El usuario no excede el límite de 2 reservas activas
+  // 15. El usuario no excede el límite de 2 reservas activas
   const reservas = await obtener('reservas');
   const reservasUsuario = reservas.filter(r => r.usuario_id === usuario_id);  
   const reservasActivas = reservasUsuario.filter(r => r.fecha >= hoy);
@@ -244,7 +254,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
     };
   }
   
-  // 15. El horario no presenta solapamiento con otras reservas
+  // 16. El horario no presenta solapamiento con otras reservas
   const disponible = await verificarDisponibilidad(equipo_id, fecha, hora_inicio, hora_fin);
   
   if (!disponible) {
