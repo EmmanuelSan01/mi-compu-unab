@@ -206,7 +206,7 @@ async function crearReserva(usuario_id, equipo_id, fecha, hora_inicio, hora_fin)
   if (solapaAlmuerzo) {
     return {
       ok: false,
-      mensaje: 'El horario seleccionado solapa con el bloque de almuerzo (13:00-14:00)'
+      mensaje: `El horario seleccionado solapa con el bloque de almuerzo (${HORA_INICIO_ALMUERZO}-${HORA_FIN_ALMUERZO})`
     };
   }
   
