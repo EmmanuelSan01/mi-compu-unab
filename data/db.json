@@ -1,101 +1,29 @@
 {
   "equipos": [
-    {
-      "id": 1,
-      "activo": true
-    },
-    {
-      "id": 2,
-      "activo": true
-    },
-    {
-      "id": 3,
-      "activo": true
-    },
-    {
-      "id": 4,
-      "activo": true
-    },
-    {
-      "id": 5,
-      "activo": true
-    },
-    {
-      "id": 6,
-      "activo": true
-    },
-    {
-      "id": 7,
-      "activo": true
-    },
-    {
-      "id": 8,
-      "activo": true
-    },
-    {
-      "id": 9,
-      "activo": true
-    },
-    {
-      "id": 10,
-      "activo": true
-    },
-    {
-      "id": 11,
-      "activo": true
-    },
-    {
-      "id": 12,
-      "activo": true
-    },
-    {
-      "id": 13,
-      "activo": true
-    },
-    {
-      "id": 14,
-      "activo": true
-    },
-    {
-      "id": 15,
-      "activo": true
-    },
-    {
-      "id": 16,
-      "activo": true
-    },
-    {
-      "id": 17,
-      "activo": true
-    },
-    {
-      "id": 18,
-      "activo": true
-    },
-    {
-      "id": 19,
-      "activo": true
-    },
-    {
-      "id": 20,
-      "activo": true
-    },
-    {
-      "id": 21,
-      "activo": true
-    },
-    {
-      "id": 22,
-      "activo": true
-    },
-    {
-      "id": 23,
-      "activo": true
-    },
-    {
-      "id": 24,
-      "activo": true
-    }
+    { "id": 1, "activo": true },
+    { "id": 2, "activo": true },
+    { "id": 3, "activo": true },
+    { "id": 4, "activo": true },
+    { "id": 5, "activo": true },
+    { "id": 6, "activo": true },
+    { "id": 7, "activo": true },
+    { "id": 8, "activo": true },
+    { "id": 9, "activo": true },
+    { "id": 10, "activo": true },
+    { "id": 11, "activo": true },
+    { "id": 12, "activo": true },
+    { "id": 13, "activo": true },
+    { "id": 14, "activo": true },
+    { "id": 15, "activo": true },
+    { "id": 16, "activo": true },
+    { "id": 17, "activo": true },
+    { "id": 18, "activo": true },
+    { "id": 19, "activo": true },
+    { "id": 20, "activo": true },
+    { "id": 21, "activo": true },
+    { "id": 22, "activo": true },
+    { "id": 23, "activo": true },
+    { "id": 24, "activo": true }
   ],
   "usuarios": [],
   "reservas": []
