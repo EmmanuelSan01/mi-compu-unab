@@ -26,7 +26,7 @@
       box-shadow: 0 8px 40px rgba(0,0,0,.3);
     }
 
-    /* ── Header ── */
+   
     .header {
       display: flex;
       align-items: center;
@@ -64,7 +64,7 @@
       letter-spacing: .3px;
     }
 
-    /* ── Leyenda ── */
+  
     .legend {
       display: flex;
       gap: 10px;
@@ -266,7 +266,7 @@
     .btn-reserve:active:not(:disabled) { transform: scale(.97); }
     .btn-reserve:disabled { opacity: .35; cursor: not-allowed; box-shadow: none; }
 
-    /* ── Modal ── */
+    
     .modal-overlay {
       display: none;
       position: fixed;
@@ -280,7 +280,7 @@
     .modal-overlay.active { display: flex; }
 
     .modal-box {
-      background: #f97316;
+      background: #730ab3;
       border-radius: 20px;
       padding: 0;
       width: 100%;
@@ -289,7 +289,7 @@
       box-shadow: 0 12px 40px rgba(0,0,0,.35);
     }
     .modal-header {
-      background: linear-gradient(135deg, #ea580c, #c2410c);
+      background: linear-gradient(135deg, #730ab3, #730ab3);
       padding: 1.25rem 1.75rem;
       display: flex;
       align-items: center;
@@ -396,7 +396,7 @@
     </div>
     <div class="legend">
       <div class="legend-item">
-        <div class="legend-dot dot-ok"></div>
+        <div class="legend-dot dot-ok"></div> 
         <span class="legend-label">Disponible</span>
       </div>
       <div class="legend-item">
@@ -436,6 +436,7 @@
 <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-box">
     <div class="modal-header">
+      <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" alt="Logo UNAB" width="100"/>
       <h2 id="modal-title">Confirmar reserva</h2>
       <span class="modal-pc-tag" id="modal-pc-tag"></span>
     </div>
