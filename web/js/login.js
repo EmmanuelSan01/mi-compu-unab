@@ -20,7 +20,7 @@ function loginUser() {
     const password = document.getElementById("password").value;
 
     try {
-      const { response, isLocal } = await tryFetch(`http://localhost:3000/users?email=${email}`);
+      const { response, isLocal } = await tryFetch(`${API_BASE_URL}/users?email=${email}`);
 
       let user = null;
       

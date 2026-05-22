@@ -60,7 +60,7 @@ const validateRegistration = (password, repeatPassword, email) => {
 
 const createUser = async (formData, isLocal) => {
   if (isLocal) {
-    return fetchFromServer("http://localhost:3000/users", {
+    return fetchFromServer(`${API_BASE_URL}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData)
@@ -106,7 +106,7 @@ const handleRegistration = async (event) => {
 
   try {
     const { response: checkResponse, isLocal } = await tryFetch(
-      `http://localhost:3000/users?email=${formValues.email}`
+      `${API_BASE_URL}/users?email=${formValues.email}`
     );
 
     const existingUsers = await getAllUsers(isLocal, checkResponse);
