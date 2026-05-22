@@ -1,13 +1,4 @@
-async function tryFetch(localUrl) {
-  try {
-    const response = await fetch(localUrl);
-    if (!response.ok) throw new Error("Local server not available");
-    return { response, isLocal: true };
-  } catch (error) {
-    console.warn("Local server not found, switching to local storage:", error);
-    return { isLocal: false };
-  }
-}
+import { inicializarAPI, obtener } from "./api.js";
 
 function loginUser() {
   document.getElementById("loginForm").addEventListener("submit", async (event) => {
@@ -20,19 +11,14 @@ function loginUser() {
     const password = document.getElementById("password").value;
 
     try {
-      const { response, isLocal } = await tryFetch(`${API_BASE_URL}/users?email=${email}`);
-
-      let user = null;
+      // Inicializar API (determina modo local/remoto automaticamente)
+      await inicializarAPI();
       
-      if (isLocal) {
-        const users = await response.json();
-        if (users && users.length > 0) {
-          user = users[0];
-        }
-      } else {
-        const storedUsers = JSON.parse(localStorage.getItem("users") || "[]");
-        user = storedUsers.find(u => u.email === email);
-      }
+      // Obtener usuarios usando la funcion unificada de api.js
+      const usuarios = await obtener("usuarios");
+      
+      // Buscar usuario por email
+      const user = usuarios.find(u => u.email === email);
 
       if (!user) {
         document.getElementById("emailError").style.display = "block";
@@ -55,7 +41,7 @@ function loginUser() {
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("Error during login: " + error.message);
+      alert("Error durante el inicio de sesion: " + error.message);
     }
   });
 }
