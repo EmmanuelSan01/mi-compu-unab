@@ -1,193 +1,118 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="../web/css/index.css">
   <script type="module" src="../web/js/index.js" defer></script>
   <title>MiCompu U</title>
 </head>
 <body>
+  <div class="container">
+    <h1 class="sr-only">MiCompu U — Reserva de computadores</h1>
 
-<div class="container">
-  <h1 class="sr-only">MiCompu U — Reserva de computadores</h1>
-
-  <div class="header">
-    <div class="brand">
-      <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" alt="Logo UNAB" />
-      <div class="brand-text">
-        <span class="app-name">MiCompu<span>U</span></span>
-        <span class="app-sub">Reserva de computadores</span>
+    <div class="header">
+      <div class="brand">
+        <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" alt="Logo UNAB">
+        <div class="brand-text">
+          <span class="app-name">MiCompu<span>U</span></span>
+          <span class="app-sub">Reserva de computadores</span>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot dot-ok"></div>
+          <span class="legend-label">Disponible</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot dot-sel"></div>
+          <span class="legend-label">Seleccionado</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot dot-busy"></div>
+          <span class="legend-label">Ocupado</span>
+        </div>
       </div>
     </div>
-    <div class="legend">
-      <div class="legend-item">
-        <div class="legend-dot dot-ok"></div>
-        <span class="legend-label">Disponible</span>
+
+    <div class="desk-wrapper">
+      <div class="desk">
+        <div class="desk-icon">🖥️</div>
+        <div class="desk-text">
+          <span class="desk-label">TABLERO — DOCENTE</span>
+          <span class="desk-sub">Frente del salón</span>
+        </div>
+        <span class="desk-badge">EN CLASE</span>
       </div>
-      <div class="legend-item">
-        <div class="legend-dot dot-sel"></div>
-        <span class="legend-label">Seleccionado</span>
+    </div>
+
+    <div class="pc-grid" id="pc-grid"></div>
+
+    <div class="footer-bar">
+      <div class="avail-info">
+        Computadores disponibles: <strong id="avail-count">24</strong> / 24
       </div>
-      <div class="legend-item">
-        <div class="legend-dot dot-busy"></div>
-        <span class="legend-label">Ocupado</span>
-      </div>
+      <button class="btn-reserve" id="btn-reserve" disabled>
+        Reservar computador
+      </button>
     </div>
   </div>
 
-  <div class="desk-wrapper">
-    <div class="desk">
-      <div class="desk-icon">🖥️</div>
-      <div class="desk-text">
-        <span class="desk-label">TABLERO — DOCENTE</span>
-        <span class="desk-sub">Frente del salón</span>
+  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
+
+  <div
+    class="modal-overlay"
+    id="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-title"
+  >
+    <div class="modal-box">
+      <div class="modal-header">
+        <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" alt="Logo UNAB" width="100">
+        <h2 id="modal-title">Confirmar reserva</h2>
+        <span class="modal-pc-tag" id="modal-pc-tag"></span>
       </div>
-      <span class="desk-badge">EN CLASE</span>
-    </div>
-  </div>
-
-  <div class="pc-grid" id="pc-grid"></div>
-
-  <div class="footer-bar">
-    <div class="avail-info">
-      Computadores disponibles: <strong id="avail-count">24</strong> / 24
-    </div>
-    <button class="btn-reserve" id="btn-reserve" disabled>Reservar computador</button>
-  </div>
-</div>
-
-<div id="toast" class="toast" role="alert" aria-live="polite"></div>
-
-<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-  <div class="modal-box">
-    <div class="modal-header">
-      <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" alt="Logo UNAB" width="100"/>
-      <h2 id="modal-title">Confirmar reserva</h2>
-      <span class="modal-pc-tag" id="modal-pc-tag"></span>
-    </div>
-    <div class="modal-body">
-      <div class="form-2col">
-        <div class="form-row">
-          <label for="f-fecha">Fecha</label>
-          <input type="date" id="f-fecha" />
+      <div class="modal-body">
+        <div class="form-2col">
+          <div class="form-row">
+            <label for="f-fecha">Fecha</label>
+            <input type="date" id="f-fecha">
+          </div>
+          <div class="form-row">
+            <label for="f-hora">Hora</label>
+            <select id="f-hora">
+              <option>07:00</option>
+              <option>08:00</option>
+              <option>09:00</option>
+              <option>10:00</option>
+              <option>11:00</option>
+              <option>12:00</option>
+              <option>13:00</option>
+              <option>14:00</option>
+              <option>15:00</option>
+              <option>16:00</option>
+              <option>17:00</option>
+              <option>18:00</option>
+            </select>
+          </div>
         </div>
         <div class="form-row">
-          <label for="f-hora">Hora</label>
-          <select id="f-hora">
-            <option>07:00</option><option>08:00</option><option>09:00</option>
-            <option>10:00</option><option>11:00</option><option>12:00</option>
-            <option>13:00</option><option>14:00</option><option>15:00</option>
-            <option>16:00</option><option>17:00</option><option>18:00</option>
+          <label for="f-motivo">Motivo de uso</label>
+          <select id="f-motivo">
+            <option>Clase / práctica</option>
+            <option>Trabajo independiente</option>
+            <option>Examen</option>
+            <option>Investigación</option>
+            <option>Otro</option>
           </select>
         </div>
+        <button class="btn-confirm" id="btn-confirm">
+          Confirmar reserva
+        </button>
+        <button class="btn-cancel" id="btn-cancel">Cancelar</button>
       </div>
-      <div class="form-row">
-        <label for="f-motivo">Motivo de uso</label>
-        <select id="f-motivo">
-          <option>Clase / práctica</option>
-          <option>Trabajo independiente</option>
-          <option>Examen</option>
-          <option>Investigación</option>
-          <option>Otro</option>
-        </select>
-      </div>
-      <button class="btn-confirm" id="btn-confirm">Confirmar reserva</button>
-      <button class="btn-cancel" id="btn-cancel">Cancelar</button>
     </div>
   </div>
-</div>
-
-<script>
-(function () {
-  var IMG ='https://cdn-icons-png.freepik.com/512/4617/4617648.png'
-  var occupied = new Set();
-  var reservations = {};
-  var selected = null;
- 
-  function pad(n) { return n < 10 ? '0' + n : '' + n; }
-
-  function render() {
-    var grid = document.getElementById('pc-grid');
-    grid.innerHTML = '';
-    for (var i = 0; i < 24; i++) {
-      var num = i + 1;
-      var isOcc = occupied.has(i);
-      var isSel = selected === i;
-
-      var div = document.createElement('div');
-      div.className = 'pc-seat' + (isOcc ? ' occupied' : '') + (isSel ? ' selected' : '');
-      div.setAttribute('role', 'button');
-      div.setAttribute('tabindex', isOcc ? '-1' : '0');
-      div.setAttribute('aria-label', 'PC-' + pad(num) + (isOcc ? ', ocupado' : isSel ? ', seleccionado' : ', disponible'));
-      div.dataset.idx = i;
-
-      var img = document.createElement('img');
-      img.src = IMG;
-      img.alt = '';
-      div.appendChild(img);
-
-      var lbl = document.createElement('span');
-      lbl.className = 'pc-label';
-      lbl.textContent = 'PC-' + pad(num);
-      div.appendChild(lbl);
-
-      if (!isOcc) {
-        div.addEventListener('click', onSelect);
-        div.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect.call(this); }
-        });
-      }
-      grid.appendChild(div);
-    }
-    document.getElementById('avail-count').textContent = 24 - occupied.size;
-    document.getElementById('btn-reserve').disabled = !(selected !== null && !occupied.has(selected));
-  }
-
-  function onSelect() {
-    var idx = parseInt(this.dataset.idx, 10);
-    selected = (selected === idx) ? null : idx;
-    render();
-  }
-
-  document.getElementById('btn-reserve').addEventListener('click', function () {
-    if (selected === null) return;
-    document.getElementById('modal-pc-tag').textContent = 'PC-' + pad(selected + 1);
-    document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
-    document.getElementById('modal').classList.add('active');
-    document.getElementById('f-fecha').focus();
-  });
-
-  function closeModal() { document.getElementById('modal').classList.remove('active'); }
-
-  document.getElementById('btn-cancel').addEventListener('click', closeModal);
-  document.getElementById('modal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
-
-  document.getElementById('btn-confirm').addEventListener('click', function () {
-    var fecha  = document.getElementById('f-fecha').value;
-    var hora   = document.getElementById('f-hora').value;
-    var motivo = document.getElementById('f-motivo').value;
-    if (!fecha) { alert('Selecciona una fecha.'); return; }
-    reservations[selected] = { fecha: fecha, hora: hora, motivo: motivo };
-    occupied.add(selected);
-    var pcNum = pad(selected + 1);
-    selected = null;
-    closeModal();
-    showToast('✓ Reserva confirmada — PC-' + pcNum + ' · ' + fecha + ' · ' + hora);
-    render();
-  });
-
-  function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function () { t.classList.remove('show'); }, 4000);
-  }
-
-  render();
-})();
-</script>
-
 </body>
 </html>
