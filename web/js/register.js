@@ -72,8 +72,8 @@ const createUser = async (formData, isLocal) => {
   const allUsers = [...remoteUsers, ...storedUsers];
   
   const newUser = {
+    id: Math.max(...allUsers.map(u => u.id || 0), 0) + 1,
     ...formData,
-    id: Math.max(...allUsers.map(u => u.id || 0), 0) + 1
   };
 
   storedUsers.push(newUser);
@@ -118,7 +118,7 @@ const handleRegistration = async (event) => {
     }
 
     const formData = {
-      name: formValues.name,
+      nombre: formValues.name,
       email: formValues.email,
       password: formValues.password,
     };
