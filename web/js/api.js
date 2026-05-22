@@ -1,5 +1,5 @@
 const API_BASE_URL = '/api';
-const REMOTE_DB_URL = '../../data/db.json';
+const REMOTE_DB_URL = './data/db.json';
 
 let modoActivo = null; // 'local' | 'remoto' | null (no inicializado)
 let dbCache = null; // Cache de db.json en modo remoto
