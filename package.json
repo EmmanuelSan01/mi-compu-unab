@@ -1,0 +1,12 @@
+{
+  "name": "mi-compu-unab",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "~5.2.0",
+    "json-server": "0.17.4"
+  }
+}

@@ -1,2 +1,5 @@
+*node*/
 *pycache*/
 *.py[cod]
+*.yml
+*.yaml

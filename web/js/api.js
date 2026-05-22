@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = '/api';
 const REMOTE_DB_URL = '../../data/db.json';
 
 let modoActivo = null; // 'local' | 'remoto' | null (no inicializado)
