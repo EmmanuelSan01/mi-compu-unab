@@ -42,16 +42,17 @@ jobs:
         run: |
           ALL_DEPLOYS=$(gh api -X GET repos/${{ github.repository }}/deployments -F per_page=100)
 
-          CURRENT_DEPLOY_ID=$(echo "$ALL_DEPLOYS" | jq '[.[] | select(.environment == "github-pages") | .id] | max')
-
-          OLD_DEPLOY_IDS=$(echo "$ALL_DEPLOYS" | jq -r ".[] | select(.environment == \"github-pages\" and .id != $CURRENT_DEPLOY_ID) | .id")
-
-          if [ -z "$OLD_DEPLOY_IDS" ] || [ "$OLD_DEPLOY_IDS" = "null" ]; then
+          if [ -z "$ALL_DEPLOYS" ] || [ "$ALL_DEPLOYS" = "null" ]; then
             exit 0
           fi
 
-          for id in $OLD_DEPLOY_IDS; do
+          echo "$ALL_DEPLOYS" | jq -r '.[] | select(.environment == "github-pages") | .id' | while read -r id; do
             if [ ! -z "$id" ] && [ "$id" != "null" ]; then
-              gh api -X DELETE repos/${{ github.repository }}/deployments/$id
+              STATUS_LIST=$(gh api -X GET repos/${{ github.repository }}/deployments/$id/statuses)
+              LATEST_STATUS=$(echo "$STATUS_LIST" | jq -r '.[0].state // "unknown"')
+
+              if [ "$LATEST_STATUS" != "active" ] && [ "$LATEST_STATUS" != "unknown" ]; then
+                gh api -X DELETE repos/${{ github.repository }}/deployments/$id
+              fi
             fi
           done
