@@ -40,18 +40,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ALL_DEPLOYS=$(gh api repos/${{ github.repository }}/deployments --per-page 100)
+          ALL_DEPLOYS=$(gh api repos/${{ github.repository }}/deployments -F per_page=100)
 
           CURRENT_DEPLOY_ID=$(echo "$ALL_DEPLOYS" | jq '[.[] | select(.environment == "github-pages") | .id] | max')
 
           OLD_DEPLOY_IDS=$(echo "$ALL_DEPLOYS" | jq -r ".[] | select(.environment == \"github-pages\" and .id != $CURRENT_DEPLOY_ID) | .id")
 
-          if [ -z "$OLD_DEPLOY_IDS" ]; then
+          if [ -z "$OLD_DEPLOY_IDS" ] || [ "$OLD_DEPLOY_IDS" = "null" ]; then
             exit 0
           fi
 
           echo "$OLD_DEPLOY_IDS" | while read -r id; do
-            if [ ! -z "$id" ]; then
+            if [ ! -z "$id" ] && [ "$id" != "null" ]; then
               gh api -X DELETE repos/${{ github.repository }}/deployments/$id
             fi
           done
