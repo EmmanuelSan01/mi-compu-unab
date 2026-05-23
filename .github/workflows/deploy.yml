@@ -1,4 +1,4 @@
-name: Deploy web folder to Pages
+name: Deploy repository to Pages
 
 on:
   push:
@@ -8,6 +8,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  deployments: write
 
 concurrency:
   group: "pages"
@@ -34,3 +35,10 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Limpiar despliegues antiguos
+        uses: stransact/clean-deployment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: 'github-pages'
+          all: true
