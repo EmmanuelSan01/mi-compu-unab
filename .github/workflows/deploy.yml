@@ -46,13 +46,14 @@ jobs:
             exit 0
           fi
 
-          echo "$ALL_DEPLOYS" | jq -r '.[] | select(.environment == "github-pages") | .id' | while read -r id; do
-            if [ ! -z "$id" ] && [ "$id" != "null" ]; then
-              STATUS_LIST=$(gh api -X GET repos/${{ github.repository }}/deployments/$id/statuses)
-              LATEST_STATUS=$(echo "$STATUS_LIST" | jq -r '.[0].state // "unknown"')
+          CURRENT_DEPLOY_ID=$(echo "$ALL_DEPLOYS" | jq -r '.[0].id // ""')
 
-              if [ "$LATEST_STATUS" != "active" ] && [ "$LATEST_STATUS" != "unknown" ]; then
-                gh api -X DELETE repos/${{ github.repository }}/deployments/$id
-              fi
+          echo "$ALL_DEPLOYS" | jq -r '.[] | select(.environment == "github-pages") | .id' | while read -r id; do
+            if [ ! -z "$id" ] && [ "$id" != "null" ] && [ "$id" != "$CURRENT_DEPLOY_ID" ]; then
+              gh api -X POST repos/${{ github.repository }}/deployments/$id/statuses \
+                -H "Accept: application/vnd.github+json" \
+                -f state="inactive" > /dev/null 2>&1 || true
+
+              gh api -X DELETE repos/${{ github.repository }}/deployments/$id
             fi
           done
