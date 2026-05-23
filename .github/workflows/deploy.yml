@@ -1,4 +1,4 @@
-name: Deploy repository to Pages
+name: Deploy web folder to Pages
 
 on:
   push:
@@ -37,8 +37,13 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Limpiar despliegues antiguos
-        uses: stransact/clean-deployment@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          environment: 'github-pages'
-          all: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          DEPLOYMENTS=$(gh api repos/${{ github.repository }}/deployments |
+            jq -c '.[] | select(.environment == "github-pages")')
+
+          echo "$DEPLOYMENTS" | while read -r deploy; do
+            ID=$(echo "$deploy" | jq '.id')
+            gh api -X DELETE repos/${{ github.repository }}/deployments/$ID
+          done
