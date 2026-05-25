@@ -77,10 +77,6 @@ function cachearElementos() {
     errorEquipo: document.getElementById('error-equipo'),
     btnAtras3: document.getElementById('btn-atras-3'),
     btnCrearReserva: document.getElementById('btn-crear-reserva'),
-    // Resultado
-    resultadoReserva: document.getElementById('resultado-reserva'),
-    detalleReserva: document.getElementById('detalle-reserva'),
-    btnNuevaReserva: document.getElementById('btn-nueva-reserva'),
     // Steps
     steps: document.querySelectorAll('.step')
   };
@@ -99,9 +95,6 @@ function configurarEventos() {
   
   // Form submit
   elementos.form.addEventListener('submit', enviarReserva);
-  
-  // Nueva reserva
-  elementos.btnNuevaReserva.addEventListener('click', reiniciarFormulario);
 }
 
 // ==============================
@@ -604,35 +597,7 @@ async function enviarReserva(e) {
 }
 
 function mostrarResultado(reserva) {
-  elementos.form.hidden = true;
-  elementos.resultadoReserva.hidden = false;
-  
-  elementos.detalleReserva.innerHTML = `
-    <strong>Fecha:</strong> ${estado.fecha}<br>
-    <strong>Horario:</strong> ${estado.horaInicio} - ${estado.horaFin}<br>
-    <strong>Equipo:</strong> #${estado.equipoId}
-  `;
-}
-
-function reiniciarFormulario() {
-  estado.fecha = null;
-  estado.horaInicio = null;
-  estado.horaFin = null;
-  estado.equipoId = null;
-  estado.seccionActual = 1;
-  
-  elementos.btnSiguiente1.disabled = true;
-  elementos.errorFecha.textContent = '';
-  
-  // Deseleccionar fecha
-  elementos.contenedorFechas.querySelectorAll('.fecha-btn').forEach(btn => {
-    btn.classList.remove('seleccionado');
-  });
-  
-  elementos.form.hidden = false;
-  elementos.resultadoReserva.hidden = true;
-  
-  irASeccion(1);
+  window.location.href = 'reservas.html';
 }
 
 function mostrarErrorGlobal(mensaje) {
