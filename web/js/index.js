@@ -537,7 +537,8 @@ async function renderizarGrillaEquipos() {
   for (const equipo of equipos) {
     const div = document.createElement('div');
     div.classList.add('equipo-item');
-    div.textContent = equipo.id;
+    
+    div.textContent = String(equipo.id).padStart(2, '0');   
     div.dataset.id = equipo.id;
     
     // Verificar disponibilidad
