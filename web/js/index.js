@@ -15,8 +15,11 @@ const estado = {
   horaInicio: null,
   horaFin: null,
   equipoId: null,
-  usuarioId: 1 // Usuario de prueba
+  usuarioId: null
 };
+
+// Usuario activo
+let usuarioActivo = null;
 
 // Elementos del DOM
 let elementos = {};
@@ -26,11 +29,31 @@ let hoverIndex = null;
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', async () => {
+  // Validar sesión activa
+  usuarioActivo = JSON.parse(sessionStorage.getItem("usuario_activo"));
+  
+  if (!usuarioActivo) {
+    window.location.href = "login.html";
+    return;
+  }
+  
+  // Configurar usuario en estado y navbar
+  estado.usuarioId = usuarioActivo.id;
+  document.getElementById('nombre-usuario').textContent = usuarioActivo.name || usuarioActivo.nombre || usuarioActivo.email;
+  
+  // Configurar cierre de sesión
+  document.getElementById('btn-cerrar-sesion').addEventListener('click', cerrarSesion);
+  
   await inicializarAPI();
   cachearElementos();
   configurarEventos();
   renderizarSelectorFecha();
 });
+
+function cerrarSesion() {
+  sessionStorage.removeItem("usuario_activo");
+  window.location.href = "login.html";
+}
 
 function cachearElementos() {
   elementos = {
@@ -81,9 +104,9 @@ function configurarEventos() {
   elementos.btnNuevaReserva.addEventListener('click', reiniciarFormulario);
 }
 
-// ==========================================
-// SECCIÓN 1: SELECTOR DE FECHA CON BOTONES
-// ==========================================
+// ==============================
+// SECCIÓN 1: SELECTOR DE FECHA
+// ==============================
 
 function renderizarSelectorFecha() {
   const hoy = new Date();
@@ -91,7 +114,7 @@ function renderizarSelectorFecha() {
   
   elementos.contenedorFechas.innerHTML = '';
   
-  // Generar los próximos 7 días completos (sin contar hoy)
+  // Generar los próximos 7 días
   for (let i = 1; i <= MAX_DIAS_ANTICIPACION; i++) {
     const fecha = new Date(hoy);
     fecha.setDate(hoy.getDate() + i);
@@ -148,9 +171,9 @@ function seleccionarFecha(fecha, boton) {
   elementos.btnSiguiente1.disabled = false;
 }
 
-// ==========================================
+// ==============================
 // SECCIÓN 2: TABLA DE HORARIOS
-// ==========================================
+// ==============================
 
 function irASeccion(numero) {
   // Ocultar sección actual
@@ -496,9 +519,9 @@ function actualizarVisualizacionHorario() {
   }
 }
 
-// ==========================================
+// ==============================
 // SECCIÓN 3: GRILLA DE EQUIPOS
-// ==========================================
+// ==============================
 
 async function renderizarGrillaEquipos() {
   elementos.grillaEquipos.innerHTML = '';
@@ -553,9 +576,9 @@ function seleccionarEquipo(id, elemento) {
   elementos.errorEquipo.textContent = '';
 }
 
-// ==========================================
+// ===================
 // ENVÍO Y RESULTADO
-// ==========================================
+// ===================
 
 async function enviarReserva(e) {
   e.preventDefault();

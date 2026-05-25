@@ -6,12 +6,19 @@ function loginUser() {
 
     document.getElementById("emailError").style.display = "none";
     document.getElementById("passwordError").style.display = "none";
+    document.getElementById("emailDomainError").style.display = "none";
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
+    if (!email.endsWith("@unab.edu.co")) {
+      document.getElementById("emailDomainError").style.display = "block";
+      document.getElementById("emailError").style.display = "none";
+      return;
+    }
+
     try {
-      // Inicializar API (determina modo local/remoto automaticamente)
+      // Inicializar API
       await inicializarAPI();
       
       // Obtener usuarios usando la funcion unificada de api.js
@@ -32,7 +39,7 @@ function loginUser() {
 
       const urlParams = new URLSearchParams(window.location.search);
 
-      sessionStorage.setItem("loggedInUser", JSON.stringify(user));
+      sessionStorage.setItem("usuario_activo", JSON.stringify(user));
       
       if (urlParams.toString()) {
         window.location.href = `room_details.html?${urlParams.toString()}`;

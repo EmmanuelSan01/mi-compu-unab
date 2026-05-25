@@ -1,7 +1,11 @@
 import { inicializarAPI, obtener, crear } from "./api.js";
 
-const validateRegistration = (password, repeatPassword) => {
+const validateRegistration = (email, password, repeatPassword) => {
   const errors = {};
+
+  if (!email.endsWith("@unab.edu.co")) {
+    errors.emailDomain = true;
+  }
   
   if (password !== repeatPassword) {
     errors.password = true;
@@ -14,6 +18,7 @@ const handleRegistration = async (event) => {
   event.preventDefault();
 
   document.getElementById("emailError").style.display = "none";
+  document.getElementById("emailDomainError").style.display = "none";
   document.getElementById("passwordError").style.display = "none";
 
   const formValues = {
@@ -23,14 +28,20 @@ const handleRegistration = async (event) => {
     name: document.getElementById("name").value
   };
 
-  const errors = validateRegistration(formValues.password, formValues.repeatPassword);
+  const errors = validateRegistration(formValues.email, formValues.password, formValues.repeatPassword);
+
+  if (errors.emailDomain) {
+    document.getElementById("emailDomainError").style.display = "block";
+    return;
+  }
+  
   if (errors.password) {
     document.getElementById("passwordError").style.display = "block";
     return;
   }
 
   try {
-    // Inicializar API (determina modo local/remoto automaticamente)
+    // Inicializar API
     await inicializarAPI();
     
     // Obtener usuarios usando la funcion unificada de api.js
