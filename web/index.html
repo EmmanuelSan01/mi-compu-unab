@@ -9,109 +9,75 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="sr-only">MiCompu U — Reserva de computadores</h1>
-
-    <div class="header">
-      <div class="brand">
-        <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" alt="Logo UNAB">
-        <div class="brand-text">
-          <span class="app-name">MiCompu<span>U</span></span>
-          <span class="app-sub">Reserva de computadores</span>
-        </div>
-      </div>
-      <div class="legend">
-        <div class="legend-item">
-          <div class="legend-dot dot-ok"></div>
-          <span class="legend-label">Disponible</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot dot-sel"></div>
-          <span class="legend-label">Seleccionado</span>
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot dot-busy"></div>
-          <span class="legend-label">Ocupado</span>
-        </div>
-      </div>
+    <h1>Reserva de Computadores</h1>
+    
+    <!-- Indicador de pasos -->
+    <div class="steps-indicator">
+      <div class="step active" data-step="1">1. Fecha</div>
+      <div class="step" data-step="2">2. Horario</div>
+      <div class="step" data-step="3">3. Equipo</div>
     </div>
 
-    <div class="desk-wrapper">
-      <div class="desk">
-        <div class="desk-icon">🖥️</div>
-        <div class="desk-text">
-          <span class="desk-label">TABLERO — DOCENTE</span>
-          <span class="desk-sub">Frente del salón</span>
+    <!-- Mensaje de error global -->
+    <div id="error-global" class="error-message" hidden></div>
+
+    <form id="form-reserva">
+      <!-- Sección 1: Selector de fecha -->
+      <section id="seccion-fecha" class="seccion active">
+        <h2>Selecciona una fecha</h2>
+        <div class="campo">
+          <label for="fecha">Fecha de reserva:</label>
+          <input type="date" id="fecha" name="fecha" required>
+          <span id="error-fecha" class="error-field"></span>
         </div>
-        <span class="desk-badge">EN CLASE</span>
-      </div>
-    </div>
-
-    <div class="pc-grid" id="pc-grid"></div>
-
-    <div class="footer-bar">
-      <div class="avail-info">
-        Computadores disponibles: <strong id="avail-count">24</strong> / 24
-      </div>
-      <button class="btn-reserve" id="btn-reserve" disabled>
-        Reservar computador
-      </button>
-    </div>
-  </div>
-
-  <div id="toast" class="toast" role="alert" aria-live="polite"></div>
-
-  <div
-    class="modal-overlay"
-    id="modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="modal-title"
-  >
-    <div class="modal-box">
-      <div class="modal-header">
-        <img src="https://unab.edu.co/wp-content/uploads/2023/09/logo-universidad-unab.png" alt="Logo UNAB" width="100">
-        <h2 id="modal-title">Confirmar reserva</h2>
-        <span class="modal-pc-tag" id="modal-pc-tag"></span>
-      </div>
-      <div class="modal-body">
-        <div class="form-2col">
-          <div class="form-row">
-            <label for="f-fecha">Fecha</label>
-            <input type="date" id="f-fecha">
-          </div>
-          <div class="form-row">
-            <label for="f-hora">Hora</label>
-            <select id="f-hora">
-              <option>07:00</option>
-              <option>08:00</option>
-              <option>09:00</option>
-              <option>10:00</option>
-              <option>11:00</option>
-              <option>12:00</option>
-              <option>13:00</option>
-              <option>14:00</option>
-              <option>15:00</option>
-              <option>16:00</option>
-              <option>17:00</option>
-              <option>18:00</option>
-            </select>
-          </div>
+        <div class="navegacion">
+          <button type="button" id="btn-siguiente-1" class="btn btn-primary" disabled>Siguiente</button>
         </div>
-        <div class="form-row">
-          <label for="f-motivo">Motivo de uso</label>
-          <select id="f-motivo">
-            <option>Clase / práctica</option>
-            <option>Trabajo independiente</option>
-            <option>Examen</option>
-            <option>Investigación</option>
-            <option>Otro</option>
-          </select>
+      </section>
+
+      <!-- Sección 2: Selector de bloque horario -->
+      <section id="seccion-horario" class="seccion">
+        <h2>Selecciona el horario</h2>
+        <p class="instrucciones">Haz clic para seleccionar inicio, luego clic para seleccionar fin. Doble clic en una celda para reserva de 30 min.</p>
+        <div class="seleccion-horario">
+          <span id="horario-seleccionado">Sin seleccionar</span>
         </div>
-        <button class="btn-confirm" id="btn-confirm">
-          Confirmar reserva
-        </button>
-        <button class="btn-cancel" id="btn-cancel">Cancelar</button>
-      </div>
+        <div class="tabla-horarios-container">
+          <table id="tabla-horarios" class="tabla-horarios">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-horarios"></tbody>
+          </table>
+        </div>
+        <span id="error-horario" class="error-field"></span>
+        <div class="navegacion">
+          <button type="button" id="btn-atras-2" class="btn btn-secondary">Atrás</button>
+          <button type="button" id="btn-siguiente-2" class="btn btn-primary" disabled>Siguiente</button>
+        </div>
+      </section>
+
+      <!-- Sección 3: Selección de equipo -->
+      <section id="seccion-equipo" class="seccion">
+        <h2>Selecciona un equipo</h2>
+        <p class="instrucciones">Los equipos en gris no están disponibles.</p>
+        <div id="grilla-equipos" class="grilla-equipos"></div>
+        <span id="error-equipo" class="error-field"></span>
+        <div class="navegacion">
+          <button type="button" id="btn-atras-3" class="btn btn-secondary">Atrás</button>
+          <button type="submit" id="btn-crear-reserva" class="btn btn-success" disabled>Crear Reserva</button>
+        </div>
+      </section>
+    </form>
+
+    <!-- Resultado de la reserva -->
+    <div id="resultado-reserva" class="resultado" hidden>
+      <h2>Reserva creada</h2>
+      <p id="detalle-reserva"></p>
+      <button type="button" id="btn-nueva-reserva" class="btn btn-primary">Nueva Reserva</button>
     </div>
   </div>
 </body>
