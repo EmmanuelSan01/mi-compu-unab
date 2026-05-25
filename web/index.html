@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="css/index.css">
   <script type="module" src="js/index.js" defer></script>
-  <title>MiCompu U</title>
+  <title>MiCompu U - Reserva de Computadores</title>
 </head>
 <body>
   <div class="container">
@@ -25,11 +25,9 @@
       <!-- Sección 1: Selector de fecha -->
       <section id="seccion-fecha" class="seccion active">
         <h2>Selecciona una fecha</h2>
-        <div class="campo">
-          <label for="fecha">Fecha de reserva:</label>
-          <input type="date" id="fecha" name="fecha" required>
-          <span id="error-fecha" class="error-field"></span>
-        </div>
+        <p class="instrucciones">Elige uno de los próximos 7 días disponibles. Los fines de semana y festivos están bloqueados.</p>
+        <div id="contenedor-fechas" class="contenedor-fechas"></div>
+        <span id="error-fecha" class="error-field"></span>
         <div class="navegacion">
           <button type="button" id="btn-siguiente-1" class="btn btn-primary" disabled>Siguiente</button>
         </div>

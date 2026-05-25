@@ -21,12 +21,15 @@ const estado = {
 // Elementos del DOM
 let elementos = {};
 
+// Variable para hover en tabla de horarios
+let hoverIndex = null;
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', async () => {
   await inicializarAPI();
   cachearElementos();
   configurarEventos();
-  configurarInputFecha();
+  renderizarSelectorFecha();
 });
 
 function cachearElementos() {
@@ -35,7 +38,7 @@ function cachearElementos() {
     errorGlobal: document.getElementById('error-global'),
     // Sección 1
     seccionFecha: document.getElementById('seccion-fecha'),
-    inputFecha: document.getElementById('fecha'),
+    contenedorFechas: document.getElementById('contenedor-fechas'),
     errorFecha: document.getElementById('error-fecha'),
     btnSiguiente1: document.getElementById('btn-siguiente-1'),
     // Sección 2
@@ -62,7 +65,6 @@ function cachearElementos() {
 
 function configurarEventos() {
   // Sección 1
-  elementos.inputFecha.addEventListener('change', validarFecha);
   elementos.btnSiguiente1.addEventListener('click', () => irASeccion(2));
   
   // Sección 2
@@ -79,72 +81,76 @@ function configurarEventos() {
   elementos.btnNuevaReserva.addEventListener('click', reiniciarFormulario);
 }
 
-function configurarInputFecha() {
-  const hoy = obtenerFechaHoy();
-  const maxDate = calcularFechaMaxima(hoy);
+// ==========================================
+// SECCIÓN 1: SELECTOR DE FECHA CON BOTONES
+// ==========================================
+
+function renderizarSelectorFecha() {
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
   
-  elementos.inputFecha.min = hoy;
-  elementos.inputFecha.max = maxDate;
-  elementos.inputFecha.value = '';
+  elementos.contenedorFechas.innerHTML = '';
+  
+  // Generar los próximos 7 días completos (sin contar hoy)
+  for (let i = 1; i <= MAX_DIAS_ANTICIPACION; i++) {
+    const fecha = new Date(hoy);
+    fecha.setDate(hoy.getDate() + i);
+    
+    const fechaStr = fecha.toISOString().split('T')[0];
+    const diaSemana = fecha.getDay();
+    const esFinDeSemana = DIAS_BLOQUEADOS.includes(diaSemana);
+    const esFestivo = FECHAS_BLOQUEADAS.includes(fechaStr);
+    const fueraDeSemestre = fechaStr < FECHA_INICIO_SEMESTRE || fechaStr > FECHA_CIERRE_SEMESTRE;
+    
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'fecha-btn';
+    btn.dataset.fecha = fechaStr;
+    
+    const nombreDia = fecha.toLocaleDateString('es-CL', { weekday: 'short' });
+    const numeroDia = fecha.getDate();
+    const nombreMes = fecha.toLocaleDateString('es-CL', { month: 'short' });
+    
+    btn.innerHTML = `
+      <span class="fecha-dia">${nombreDia}</span>
+      <span class="fecha-numero">${numeroDia}</span>
+      <span class="fecha-mes">${nombreMes}</span>
+    `;
+    
+    if (esFinDeSemana || esFestivo || fueraDeSemestre) {
+      btn.classList.add('bloqueado');
+      btn.disabled = true;
+      if (esFinDeSemana) {
+        btn.title = 'Fin de semana';
+      } else if (esFestivo) {
+        btn.title = 'Festivo';
+      } else {
+        btn.title = 'Fuera del período del semestre';
+      }
+    } else {
+      btn.addEventListener('click', () => seleccionarFecha(fechaStr, btn));
+    }
+    
+    elementos.contenedorFechas.appendChild(btn);
+  }
 }
 
-function calcularFechaMaxima(desde) {
-  const fecha = new Date(desde + 'T00:00:00');
-  fecha.setDate(fecha.getDate() + MAX_DIAS_ANTICIPACION);
-  return fecha.toISOString().split('T')[0];
-}
-
-function validarFecha() {
-  const fecha = elementos.inputFecha.value;
-  elementos.errorFecha.textContent = '';
-  elementos.btnSiguiente1.disabled = true;
+function seleccionarFecha(fecha, boton) {
+  // Deseleccionar anterior
+  elementos.contenedorFechas.querySelectorAll('.fecha-btn').forEach(btn => {
+    btn.classList.remove('seleccionado');
+  });
   
-  if (!fecha) return;
-  
-  const hoy = obtenerFechaHoy();
-  const diaSemana = new Date(fecha + 'T00:00:00').getDay();
-  
-  // Validación 1: No anterior al inicio del semestre
-  if (fecha < FECHA_INICIO_SEMESTRE) {
-    elementos.errorFecha.textContent = `La fecha no puede ser anterior al ${FECHA_INICIO_SEMESTRE} (inicio del semestre)`;
-    return;
-  }
-  
-  // Validación 2: No anterior a hoy
-  if (fecha < hoy) {
-    elementos.errorFecha.textContent = 'No se permiten reservas en fechas pasadas';
-    return;
-  }
-  
-  // Validación 3: No más de 7 días
-  const diasAnticipacion = Math.ceil((new Date(fecha) - new Date(hoy)) / (1000 * 60 * 60 * 24));
-  if (diasAnticipacion > MAX_DIAS_ANTICIPACION) {
-    elementos.errorFecha.textContent = `La reserva no puede exceder ${MAX_DIAS_ANTICIPACION} días de anticipación`;
-    return;
-  }
-  
-  // Validación 4: No posterior al cierre del semestre
-  if (fecha > FECHA_CIERRE_SEMESTRE) {
-    elementos.errorFecha.textContent = `La fecha no puede ser posterior al ${FECHA_CIERRE_SEMESTRE} (cierre del semestre)`;
-    return;
-  }
-  
-  // Validación 5: No fines de semana
-  if (DIAS_BLOQUEADOS.includes(diaSemana)) {
-    elementos.errorFecha.textContent = 'No se permiten reservas en fines de semana';
-    return;
-  }
-  
-  // Validación 6: No festivos
-  if (FECHAS_BLOQUEADAS.includes(fecha)) {
-    elementos.errorFecha.textContent = 'No se permiten reservas en esta fecha (festivo o día no hábil)';
-    return;
-  }
-  
-  // Fecha válida
+  // Seleccionar nuevo
+  boton.classList.add('seleccionado');
   estado.fecha = fecha;
+  elementos.errorFecha.textContent = '';
   elementos.btnSiguiente1.disabled = false;
 }
+
+// ==========================================
+// SECCIÓN 2: TABLA DE HORARIOS
+// ==========================================
 
 function irASeccion(numero) {
   // Ocultar sección actual
@@ -210,35 +216,108 @@ function renderizarTablaHorarios() {
   const diaSemana = new Date(estado.fecha + 'T00:00:00').getDay();
   
   elementos.tbodyHorarios.innerHTML = '';
-  estado.horaInicio = null;
-  estado.horaFin = null;
-  actualizarVisualizacionHorario();
-  elementos.btnSiguiente2.disabled = true;
   
-  bloques.forEach((bloque, index) => {
+  // Solo resetear horarios si no hay selección previa
+  if (estado.horaInicio === null) {
+    estado.horaInicio = null;
+    estado.horaFin = null;
+  }
+  
+  hoverIndex = null;
+  elementos.btnSiguiente2.disabled = !(estado.horaInicio && estado.horaFin);
+  
+  // Agrupar bloques bloqueados por motivo
+  let motivoActual = null;
+  let contadorMotivo = 0;
+  const bloquesConMotivo = bloques.map((bloque, index) => {
+    const motivo = obtenerMotivoBloqueado(bloque.hora, diaSemana);
+    return { ...bloque, index, motivo };
+  });
+  
+  // Contar bloques consecutivos por motivo
+  const gruposMotivo = [];
+  let grupoActual = null;
+  
+  bloquesConMotivo.forEach((bloque, i) => {
+    if (bloque.motivo) {
+      if (grupoActual && grupoActual.motivo === bloque.motivo) {
+        grupoActual.count++;
+        grupoActual.indices.push(i);
+      } else {
+        grupoActual = { motivo: bloque.motivo, count: 1, startIndex: i, indices: [i] };
+        gruposMotivo.push(grupoActual);
+      }
+    } else {
+      grupoActual = null;
+    }
+  });
+  
+  // Crear mapa de primer índice de cada grupo
+  const primerIndiceGrupo = new Map();
+  const spanPorIndice = new Map();
+  gruposMotivo.forEach(grupo => {
+    primerIndiceGrupo.set(grupo.startIndex, grupo.count);
+    grupo.indices.forEach(idx => spanPorIndice.set(idx, grupo));
+  });
+  
+  bloquesConMotivo.forEach((bloque, index) => {
     const tr = document.createElement('tr');
     tr.dataset.hora = bloque.hora;
     tr.dataset.index = index;
     
     const tdHora = document.createElement('td');
+    tdHora.className = 'celda-hora';
     tdHora.textContent = bloque.hora;
+    tr.appendChild(tdHora);
     
     const tdEstado = document.createElement('td');
+    tdEstado.className = 'celda-estado';
     
-    const motivo = obtenerMotivoBloqueado(bloque.hora, diaSemana);
-    if (motivo) {
+    if (bloque.motivo) {
       tr.classList.add('bloqueado');
-      tdEstado.innerHTML = `<span class="motivo-bloqueo">${motivo}</span>`;
+      
+      // Solo agregar celda con motivo si es el primer bloque del grupo
+      if (primerIndiceGrupo.has(index)) {
+        const rowspan = primerIndiceGrupo.get(index);
+        tdEstado.rowSpan = rowspan;
+        tdEstado.innerHTML = `<span class="motivo-bloqueo">${bloque.motivo}</span>`;
+        tr.appendChild(tdEstado);
+      }
+      // Si no es el primero, no agregar la celda (ya está cubierta por rowspan)
     } else {
-      tdEstado.textContent = 'Disponible';
+      // Celda vacía para bloques disponibles
+      tdEstado.textContent = '';
+      tr.appendChild(tdEstado);
+      
       tr.addEventListener('click', () => seleccionarBloque(bloque.hora, index));
       tr.addEventListener('dblclick', () => seleccionarBloqueDoble(bloque.hora, index));
+      tr.addEventListener('mouseenter', () => handleHover(index));
+      tr.addEventListener('mouseleave', () => handleHoverLeave());
     }
     
-    tr.appendChild(tdHora);
-    tr.appendChild(tdEstado);
     elementos.tbodyHorarios.appendChild(tr);
   });
+  
+  actualizarVisualizacionHorario();
+}
+
+function handleHover(index) {
+  if (estado.horaInicio && !estado.horaFin) {
+    const bloques = generarBloques();
+    const indexInicio = bloques.findIndex(b => b.hora === estado.horaInicio);
+    
+    if (index > indexInicio) {
+      hoverIndex = index;
+      actualizarVisualizacionHorario();
+    }
+  }
+}
+
+function handleHoverLeave() {
+  if (hoverIndex !== null) {
+    hoverIndex = null;
+    actualizarVisualizacionHorario();
+  }
 }
 
 function seleccionarBloque(hora, index) {
@@ -248,26 +327,29 @@ function seleccionarBloque(hora, index) {
     // Primer clic: seleccionar inicio
     estado.horaInicio = hora;
     estado.horaFin = null;
+    hoverIndex = null;
   } else if (!estado.horaFin) {
     // Segundo clic: seleccionar fin
     if (hora <= estado.horaInicio) {
       // Si selecciona antes del inicio, reiniciar
       estado.horaInicio = hora;
       estado.horaFin = null;
+      hoverIndex = null;
     } else {
       // Calcular hora de fin (fin del bloque seleccionado)
-      const indexFin = index;
-      if (indexFin < bloques.length - 1) {
-        estado.horaFin = bloques[indexFin + 1].hora;
+      if (index < bloques.length - 1) {
+        estado.horaFin = bloques[index + 1].hora;
       } else {
         estado.horaFin = HORA_CIERRE;
       }
+      hoverIndex = null;
       validarRangoHorario();
     }
   } else {
     // Ya hay rango, reiniciar con nuevo inicio
     estado.horaInicio = hora;
     estado.horaFin = null;
+    hoverIndex = null;
   }
   
   actualizarVisualizacionHorario();
@@ -283,6 +365,7 @@ function seleccionarBloqueDoble(hora, index) {
     estado.horaFin = HORA_CIERRE;
   }
   
+  hoverIndex = null;
   validarRangoHorario();
   actualizarVisualizacionHorario();
 }
@@ -356,9 +439,11 @@ function calcularDuracion(horaInicio, horaFin) {
 }
 
 function actualizarVisualizacionHorario() {
+  const bloques = generarBloques();
+  
   // Limpiar clases
   elementos.tbodyHorarios.querySelectorAll('tr').forEach(tr => {
-    tr.classList.remove('inicio-seleccionado', 'fin-seleccionado', 'en-rango', 'seleccionado');
+    tr.classList.remove('inicio-seleccionado', 'fin-seleccionado', 'en-rango', 'en-rango-hover', 'ultimo-en-rango');
   });
   
   if (!estado.horaInicio) {
@@ -366,32 +451,41 @@ function actualizarVisualizacionHorario() {
     return;
   }
   
+  const indexInicio = bloques.findIndex(b => b.hora === estado.horaInicio);
+  let indexFin = null;
+  
+  if (estado.horaFin) {
+    // Si horaFin es HORA_CIERRE, el índice es el último bloque
+    if (estado.horaFin === HORA_CIERRE) {
+      indexFin = bloques.length;
+    } else {
+      indexFin = bloques.findIndex(b => b.hora === estado.horaFin);
+    }
+  }
+  
   const filas = elementos.tbodyHorarios.querySelectorAll('tr');
-  let enRango = false;
   
   filas.forEach(tr => {
-    const hora = tr.dataset.hora;
+    const index = parseInt(tr.dataset.index);
     
-    if (hora === estado.horaInicio) {
+    // Marcar inicio
+    if (index === indexInicio) {
       tr.classList.add('inicio-seleccionado');
-      enRango = true;
     }
     
-    if (estado.horaFin && hora === estado.horaFin) {
-      enRango = false;
-    }
-    
-    if (enRango && !tr.classList.contains('bloqueado')) {
+    // Si hay fin definido, mostrar rango
+    if (indexFin !== null && index >= indexInicio && index < indexFin && !tr.classList.contains('bloqueado')) {
       tr.classList.add('en-rango');
+      
+      // Marcar el último bloque del rango
+      if (index === indexFin - 1) {
+        tr.classList.add('ultimo-en-rango');
+      }
     }
     
-    // Marcar el bloque anterior al fin como fin-seleccionado
-    if (estado.horaFin) {
-      const bloques = generarBloques();
-      const indexFin = bloques.findIndex(b => b.hora === estado.horaFin);
-      if (indexFin > 0 && hora === bloques[indexFin - 1].hora) {
-        tr.classList.add('fin-seleccionado');
-      }
+    // Si hay hover (solo cuando no hay fin), mostrar preview
+    if (hoverIndex !== null && !estado.horaFin && index >= indexInicio && index <= hoverIndex && !tr.classList.contains('bloqueado')) {
+      tr.classList.add('en-rango-hover');
     }
   });
   
@@ -401,6 +495,10 @@ function actualizarVisualizacionHorario() {
     elementos.horarioSeleccionado.textContent = `Inicio: ${estado.horaInicio} (selecciona fin)`;
   }
 }
+
+// ==========================================
+// SECCIÓN 3: GRILLA DE EQUIPOS
+// ==========================================
 
 async function renderizarGrillaEquipos() {
   elementos.grillaEquipos.innerHTML = '';
@@ -455,6 +553,10 @@ function seleccionarEquipo(id, elemento) {
   elementos.errorEquipo.textContent = '';
 }
 
+// ==========================================
+// ENVÍO Y RESULTADO
+// ==========================================
+
 async function enviarReserva(e) {
   e.preventDefault();
   
@@ -495,9 +597,13 @@ function reiniciarFormulario() {
   estado.equipoId = null;
   estado.seccionActual = 1;
   
-  elementos.inputFecha.value = '';
   elementos.btnSiguiente1.disabled = true;
   elementos.errorFecha.textContent = '';
+  
+  // Deseleccionar fecha
+  elementos.contenedorFechas.querySelectorAll('.fecha-btn').forEach(btn => {
+    btn.classList.remove('seleccionado');
+  });
   
   elementos.form.hidden = false;
   elementos.resultadoReserva.hidden = true;
