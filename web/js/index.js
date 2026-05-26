@@ -531,7 +531,14 @@ async function renderizarGrillaEquipos() {
     const div = document.createElement('div');
     div.classList.add('equipo-item');
     
-    div.textContent = String(equipo.id).padStart(2, '0');   
+    const idStr = String(equipo.id).padStart(2, '0');
+    div.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="equipo-icono" aria-hidden="true">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <path d="M8 21h8M12 17v4"/>
+        <text x="12" y="11" text-anchor="middle" dominant-baseline="middle" font-size="6" font-weight="700" stroke="none" fill="currentColor" font-family="DM Sans, sans-serif">${idStr}</text>
+      </svg>
+    `;
     div.dataset.id = equipo.id;
     
     // Verificar disponibilidad
