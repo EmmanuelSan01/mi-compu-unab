@@ -9,6 +9,15 @@ Plataforma web para la gestión de reservas de equipos en la sala de cómputo **
 #### **Docente:** Antonio José Rodríguez Linares
 ---
 
+<div align="center">
+  <strong>
+    ¿Tienes Preguntas? 👉
+    <a href="https://deepwiki.com/EmmanuelSan01/mi-compu-unab">
+      <img src="https://deepwiki.com/badge.svg" alt="Ask DeepWiki" />
+    </a>
+  </strong>
+</div>
+
 ## 📋 Descripción
 
 Mi Compu UNAB reemplaza el proceso manual e informal de asignación de equipos en la sala CSU 22 (24 computadores de escritorio) por una plataforma web automatizada. Los estudiantes pueden consultar disponibilidad en tiempo real, crear reservas y cancelarlas desde el navegador, sin necesidad de presentarse físicamente para reclamar un puesto.
