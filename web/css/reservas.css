@@ -52,7 +52,7 @@ body {
   color: var(--white);
 }
 
-.navbar-user-menu {
+.navbar-user {
   position: relative;
 }
 
@@ -98,7 +98,7 @@ body {
   transition: all 0.2s;
 }
 
-.navbar-user-menu:hover .navbar-dropdown {
+.navbar-user:hover .navbar-dropdown {
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
@@ -114,10 +114,11 @@ body {
   color: var(--white);
   font-size: 0.95rem;
   transition: background 0.2s;
+  background: var(--purple-dark);
 }
 
 .btn-cerrar-sesion:hover {
-  background: rgba(249, 115, 22, 0.2);
+  background: var(--purple);
 }
 
 .container {

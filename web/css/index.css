@@ -121,10 +121,11 @@ body {
   color: var(--white);
   font-size: 0.95rem;
   transition: background 0.2s;
+  background: var(--purple-dark);
 }
 
 .btn-cerrar-sesion:hover {
-  background: rgba(249, 115, 22, 0.2);
+  background: var(--purple);
 }
 
 /*
