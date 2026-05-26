@@ -1,10 +1,26 @@
+/* Tipografías */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@100..1000&display=swap"); /* DM Sans (pesos 100-1000) */
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap"); /* Syne (pesos 400-800) */
+
 * {
   box-sizing: border-box;
 }
 
+:root {
+  --orange: #f97316;
+  --orange-dark: #ea580c;
+  --orange-deep: #c2410c;
+  --purple: #7e22ce;
+  --purple-mid: #6b21a8;
+  --purple-dark: #581c87;
+  --purple-deep: #3b0764;
+  --white: #ffffff;
+  --off-white: #fff7ed;
+}
+
 body {
-  font-family: system-ui, -apple-system, sans-serif;
-  background: #f5f5f5;
+  font-family: "DM Sans", sans-serif;
+  background: var(--orange);
   margin: 0;
   padding: 0;
   padding-top: 60px;
@@ -22,17 +38,18 @@ body {
   left: 0;
   right: 0;
   height: 56px;
-  background: #1976d2;
+  background: linear-gradient(135deg, var(--purple-deep), var(--purple-dark));
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(59, 7, 100, 0.3);
 }
 
 .navbar-brand {
-  color: #fff;
+  color: var(--white);
+  font-family: "Syne", sans-serif;
   font-size: 1.25rem;
   font-weight: bold;
 }
@@ -42,7 +59,7 @@ body {
   display: flex;
   align-items: center;
   gap: 16px;
-  color: #fff;
+  color: var(--white);
 }
 
 .navbar-user #nombre-usuario {
@@ -58,7 +75,7 @@ body {
 }
 
 .navbar-link {
-  color: #fff;
+  color: var(--white);
   text-decoration: none;
   padding: 8px 16px;
   border-radius: 4px;
@@ -77,7 +94,7 @@ body {
   position: absolute;
   top: 100%;
   right: 0;
-  background: #fff;
+  background: var(--white);
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   min-width: 150px;
@@ -101,13 +118,13 @@ body {
   border: none;
   text-align: left;
   cursor: pointer;
-  color: #333;
+  color: var(--white);
   font-size: 0.95rem;
   transition: background 0.2s;
 }
 
 .btn-cerrar-sesion:hover {
-  background: #f5f5f5;
+  background: rgba(249, 115, 22, 0.2);
 }
 
 /*
@@ -119,21 +136,25 @@ body {
 .container {
   max-width: 600px;
   margin: 20px auto;
-  background: #fff;
+  background: var(--purple-dark);
   padding: 24px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 24px 80px rgba(59, 7, 100, 0.5), 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 h1 {
   margin: 0 0 20px;
+  font-family: "Syne", sans-serif;
   font-size: 1.5rem;
   text-align: center;
+  color: var(--white);
 }
 
 h2 {
+  font-family: "Syne", sans-serif;
   font-size: 1.1rem;
   margin: 0 0 16px;
+  color: var(--white);
 }
 
 /* Steps indicator */
@@ -147,19 +168,20 @@ h2 {
   flex: 1;
   padding: 8px;
   text-align: center;
-  background: #e0e0e0;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 4px;
   font-size: 0.85rem;
+  color: #c4b5fd;
 }
 
 .step.active {
-  background: #1976d2;
-  color: #fff;
+  background: var(--orange);
+  color: var(--white);
 }
 
 .step.completed {
-  background: #4caf50;
-  color: #fff;
+  background: var(--orange-dark);
+  color: var(--white);
 }
 
 /* Secciones */
@@ -180,19 +202,20 @@ h2 {
   display: block;
   margin-bottom: 4px;
   font-weight: 500;
+  color: #c4b5fd;
 }
 
 /* Errores */
 .error-message {
-  background: #ffebee;
-  color: #c62828;
+  background: rgba(252, 165, 165, 0.15);
+  color: #fca5a5;
   padding: 12px;
   border-radius: 4px;
   margin-bottom: 16px;
 }
 
 .error-field {
-  color: #c62828;
+  color: #fca5a5;
   font-size: 0.85rem;
   display: block;
   margin-top: 4px;
@@ -201,6 +224,7 @@ h2 {
 /* Botones */
 .btn {
   padding: 10px 20px;
+  font-family: "Syne", sans-serif;
   font-size: 1rem;
   border: none;
   border-radius: 4px;
@@ -213,18 +237,20 @@ h2 {
 }
 
 .btn-primary {
-  background: #1976d2;
-  color: #fff;
+  background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+  color: var(--white);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
 }
 
 .btn-secondary {
-  background: #757575;
-  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  border: 1.5px solid rgba(168, 85, 247, 0.3);
 }
 
 .btn-success {
-  background: #388e3c;
-  color: #fff;
+  background: linear-gradient(135deg, var(--orange), var(--orange-dark));
+  color: var(--white);
 }
 
 .navegacion {
@@ -237,7 +263,7 @@ h2 {
 /* Instrucciones */
 .instrucciones {
   font-size: 0.85rem;
-  color: #666;
+  color: #c4b5fd;
   margin: 0 0 12px;
 }
 
@@ -262,26 +288,27 @@ h2 {
   width: 70px;
   height: 80px;
   padding: 8px;
-  border: 2px solid #1976d2;
+  border: 2px solid var(--orange);
   border-radius: 8px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--white);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .fecha-btn:hover:not(.bloqueado):not(.seleccionado) {
-  background: #e3f2fd;
+  background: rgba(249, 115, 22, 0.15);
 }
 
 .fecha-btn.seleccionado {
-  background: #1976d2;
-  color: #fff;
+  background: var(--orange);
+  color: var(--white);
 }
 
 .fecha-btn.bloqueado {
-  background: #f5f5f5;
-  border-color: #bdbdbd;
-  color: #999;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: rgba(196, 181, 253, 0.5);
   cursor: not-allowed;
   text-decoration: line-through;
 }
@@ -308,7 +335,8 @@ h2 {
 */
 
 .seleccion-horario {
-  background: #e3f2fd;
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--orange);
   padding: 8px 12px;
   border-radius: 4px;
   margin-bottom: 12px;
@@ -319,7 +347,7 @@ h2 {
 .tabla-horarios-container {
   max-height: 400px;
   overflow-y: auto;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(168, 85, 247, 0.3);
   border-radius: 4px;
 }
 
@@ -333,11 +361,13 @@ h2 {
   padding: 10px 12px;
   text-align: center;
   vertical-align: middle;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(168, 85, 247, 0.2);
+  color: var(--white);
 }
 
 .tabla-horarios th {
-  background: #f5f5f5;
+  background: var(--purple-deep);
+  color: #c4b5fd;
   position: sticky;
   top: 0;
   z-index: 1;
@@ -358,36 +388,36 @@ h2 {
 }
 
 .tabla-horarios tbody tr:hover:not(.bloqueado):not(.en-rango):not(.en-rango-hover) {
-  background: #e3f2fd;
+  background: rgba(249, 115, 22, 0.15);
 }
 
 .tabla-horarios tbody tr.bloqueado {
-  background: #ffebee;
-  color: #999;
+  background: rgba(252, 165, 165, 0.1);
+  color: rgba(196, 181, 253, 0.5);
   cursor: not-allowed;
 }
 
 .tabla-horarios tbody tr.inicio-seleccionado {
-  background: #bbdefb;
-  border-top: 3px solid #1976d2;
+  background: rgba(249, 115, 22, 0.3);
+  border-top: 3px solid var(--orange);
 }
 
 .tabla-horarios tbody tr.en-rango {
-  background: #bbdefb;
+  background: rgba(249, 115, 22, 0.3);
 }
 
 .tabla-horarios tbody tr.ultimo-en-rango {
-  border-bottom: 3px solid #1976d2;
+  border-bottom: 3px solid var(--orange);
 }
 
 .tabla-horarios tbody tr.en-rango-hover {
-  background: #e3f2fd;
+  background: rgba(249, 115, 22, 0.15);
 }
 
 .motivo-bloqueo {
   font-size: 0.85rem;
   font-style: italic;
-  color: #c62828;
+  color: #fca5a5;
 }
 
 /*
@@ -408,26 +438,27 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #1976d2;
+  border: 2px solid var(--orange);
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--white);
   transition: all 0.2s;
 }
 
 .equipo-item:hover:not(.no-disponible) {
-  background: #e3f2fd;
+  background: rgba(249, 115, 22, 0.15);
 }
 
 .equipo-item.no-disponible {
-  background: #e0e0e0;
-  border-color: #bdbdbd;
-  color: #999;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: rgba(196, 181, 253, 0.5);
   cursor: not-allowed;
 }
 
 .equipo-item.seleccionado {
-  background: #1976d2;
-  color: #fff;
+  background: var(--orange);
+  color: var(--white);
 }
