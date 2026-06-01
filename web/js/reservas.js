@@ -2,7 +2,7 @@ import { obtener, crear, eliminar } from './api.js';
 
 // Constantes de reglas de negocio
 const FECHA_INICIO_SEMESTRE = '2026-02-02';
-const FECHA_CIERRE_SEMESTRE = '2026-05-29';
+const FECHA_CIERRE_SEMESTRE = '2026-06-03';
 const MAX_DIAS_ANTICIPACION = 7;
 const MIN_DURACION_MINUTOS = 30;
 const MAX_DURACION_HORAS = 4;
