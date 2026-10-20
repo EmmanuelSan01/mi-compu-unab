@@ -1,25 +1,3 @@
-/*
-==========================================
-  MiCompu U — styles.css (hoja de estilos unificada)
-
-  Secciones:
-  1. Base: tipografías, variables y reset
-  2. Navbar (compartida)
-  3. Auth: login y registro
-  4. Página de reserva (index)
-  5. Mis reservas
-
-  Cada página identifica su <body>:
-  - login:    <body class="auth pagina-login">
-  - registro: <body class="auth pagina-register">
-  - reserva:  <body class="pagina-index">
-  - reservas: <body class="pagina-reservas">
-
-  Las reglas que solo existen en una página y no
-  colisionan con otras se dejan sin prefijo.
-==========================================
-*/
-
 /* Tipografías */
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@100..1000&display=swap"); /* DM Sans (pesos 100-1000) */
 @import url("https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap"); /* Syne (pesos 400-800) */
@@ -70,6 +48,7 @@ body.pagina-reservas {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  padding-top: 76px;
 }
 
 /* Encabezados */
